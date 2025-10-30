@@ -1,0 +1,4 @@
+Oct 27
+- Distributed remaining work evenly among teammates
+- Discussed potential future ideas to implement
+- Started working on wireframes

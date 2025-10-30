@@ -1,0 +1,28 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+
+# Build output
+build/
+dist/
+
+# Logs
+logs/
+*.log
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Docker
+docker-compose.override.yml
+*.env.docker
+
+# Misc
+*.tmp

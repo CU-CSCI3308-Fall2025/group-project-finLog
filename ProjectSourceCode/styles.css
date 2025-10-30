@@ -1,0 +1,16 @@
+/* Map page specific styles */
+.map-container {
+  height: 60vh;
+  min-height: 350px;
+}
+
+.map-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Global styles for both pages */
+/* Add any additional custom styles here if needed */

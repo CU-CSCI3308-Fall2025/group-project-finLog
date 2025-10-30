@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>FINLOG</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-light">
+
+  <header class="p-2 bg-secondary text-white">
+    <div class="d-flex justify-content-between align-items-center">
+      <button class="btn btn-outline-light">≡</button>
+      <div class="text-center">
+        <h1 class="m-0">FINLOG</h1>
+        <div class="mt-1">
+          <a href="home.html" class="btn btn-outline-light btn-sm me-2">Home</a>
+          <a href="finlog.html" class="btn btn-outline-light btn-sm me-2">Fish Log</a>
+          <a href="map_page.html" class="btn btn-outline-light btn-sm me-2">Map</a>
+          <a href="upload.html" class="btn btn-outline-light btn-sm me-2">Upload</a>
+          <a href="dashboard.html" class="btn btn-outline-light btn-sm">Dashboard</a>
+        </div>
+      </div>
+      <a href="login.html" class="btn btn-outline-light">Login</a>
+    </div>
+  </header>
+  
+  <main class="container my-4">
+    <h2>Fish Log</h2>
+    <div id="postGrid" class="row g-3"></div>
+  </main>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const postGrid = document.getElementById("postGrid");
+
+    // Function to render a card and its corresponding modal
+    function addPost(id, title, imageLabel, details) {
+      const card = `
+        <div class="col-12 col-sm-6 col-md-4">
+          <div class="card text-center">
+            <button class="btn p-0" data-bs-toggle="modal" data-bs-target="#modal${id}">
+              <div class="card-body">${imageLabel}</div>
+            </button>
+            <div class="card-footer">Details</div>
+          </div>
+        </div>
+
+        <div class="modal fade" id="modal${id}" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">${title}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body text-center">
+                <div class="mb-3 border p-3">${imageLabel}</div>
+                <ul class="list-unstyled text-start">
+                  ${details.map(d => `<li>${d}</li>`).join('')}
+                </ul>
+                <button class="btn btn-primary ai-btn mt-2" data-id="${id}">Analyze with AI</button>
+                <div id="aiResult${id}" class="mt-3 text-start"></div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      postGrid.insertAdjacentHTML("beforeend", card);
+    }
+
+    // Simple AI simulation
+    function simulateAI(id) {
+      const r = document.getElementById("aiResult" + id);
+      r.innerHTML = "<strong>Analyzing...</strong>";
+      setTimeout(() => {
+        r.innerHTML = "<strong>AI Result:</strong> Details";
+      }, 1500);
+    }
+
+    // Event listener for all AI buttons
+    document.addEventListener("click", e => {
+      if (e.target.classList.contains("ai-btn")) {
+        simulateAI(e.target.dataset.id);
+      }
+    });
+
+    // Example posts
+    addPost(1, "Catch #1 Details", "image 1", [
+      "Weight:",
+      "Location:",
+      "Type:",
+      "Bait:",
+      "Notes:"
+    ]);
+
+    addPost(2, "Catch #2 Details", "image 2", [
+      "Weight:",
+      "Location:",
+      "Type:",
+      "Bait:",
+      "Notes:"
+    ]);
+
+    addPost(3, "Catch #3 Details", "image 3", [
+      "Weight:",
+      "Location:",
+      "Type:",
+      "Bait:",
+      "Notes:"
+    ]);
+  </script>
+
+</body>
+</html>
