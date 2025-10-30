@@ -2,3 +2,21 @@ Oct 27
 - Distributed remaining work evenly among teammates
 - Discussed potential future ideas to implement
 - Started working on wireframes
+
+Oct 30
+-General feed before logging in
+	-cannot comment/post until logged in
+-move fishlog to dashboard
+-upload to dashboard
+-dashboard and feed are main pages
+-sub taskbar in the dashboard
+-Expectations:
+	-API Gemini
+	-User Moderation
+		-admin dashboard
+	-Admin dashboard:
+		-ban ppl indef and short time
+		-remove posts/comments
+	-Login w admin should take you to admin dash
+	-login w user should take you to user dash
+	
