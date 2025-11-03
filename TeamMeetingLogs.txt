@@ -6,6 +6,7 @@ Oct 27
 Oct 30
 -General feed before logging in
 	-cannot comment/post until logged in
+
 -move fishlog to dashboard
 -upload to dashboard
 -dashboard and feed are main pages
@@ -19,4 +20,14 @@ Oct 30
 		-remove posts/comments
 	-Login w admin should take you to admin dash
 	-login w user should take you to user dash
-	
+
+Nov 3 
+Each person has to add 2 stories and create them 
+
+Get Login Working 
+create new admin_dashboard
+work on user_dashboard
+work on login page
+get gemini api setup
+get working map
+
