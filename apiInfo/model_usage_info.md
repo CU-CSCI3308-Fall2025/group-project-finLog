@@ -2,6 +2,8 @@ Model to use:
 
 gemini2.5-flash 
 
+access at - https://aistudio.google.com/api-keys
+
 Text-out models	It excels at taking multimodal input (your image) and generating a detailed text response (the identification and information).
 
 Multimodal Support - Yes The Gemini Flash models are built to natively understand and reason about images, making them excellent for visual question answering like fish identification.
