@@ -7,5 +7,22 @@
   overflow: hidden;
 }
 
+.pin-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.pin-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.pin-item:last-child {
+  border-bottom: none;
+}
+
 /* Global styles for both pages */
 /* Add any additional custom styles here if needed */
