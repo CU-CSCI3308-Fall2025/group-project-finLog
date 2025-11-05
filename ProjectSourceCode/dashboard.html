@@ -2,181 +2,195 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>FINLOG - Dashboard</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
-  <link rel="stylesheet" href="styles.css" />
+  <title>FINLOG — Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    body { background: #f7f7f7; }
+    .map-container { height: 380px; border-radius: .5rem; }
+    .pin-list .pin-item { display:flex; justify-content:space-between; align-items:center; padding:.25rem .5rem; border:1px solid #eee; border-radius:.5rem; margin-bottom:.25rem;}
+    .card img { max-height:220px; object-fit:cover; }
+    .section-anchor { scroll-margin-top: 72px; }
+  </style>
 </head>
-<body class="bg-light">
+<body>
 
-  <header class="p-2 bg-secondary text-white">
+<header class="p-2 bg-secondary text-white">
     <div class="d-flex justify-content-between align-items-center">
       <button class="btn btn-outline-light">≡</button>
       <div class="text-center">
         <h1 class="m-0">FINLOG</h1>
         <div class="mt-1">
           <a href="home.html" class="btn btn-outline-light btn-sm me-2">Home</a>
-          <a href="finlog.html" class="btn btn-outline-light btn-sm me-2">Fish Log</a>
-          <a href="map_page.html" class="btn btn-outline-light btn-sm me-2">Map</a>
-          <a href="upload.html" class="btn btn-outline-light btn-sm me-2">Upload</a>
-          <a href="dashboard.html" class="btn btn-outline-light btn-sm">Dashboard</a>
         </div>
       </div>
-      <a href="/logout" class="btn btn-outline-light">Logout</a>
+      <a href="/login" class="btn btn-outline-light">Login</a>
     </div>
   </header>
 
-  <div class="container-fluid">
-    <div class="row justify-content-center">
-      <div class="col-md-10">
-        <!-- Stats Row -->
-        <div class="row mb-4">
-          <div class="col-md-3">
-            <div class="card">
-              <div class="card-body text-center">
-                <h3>47</h3>
-                <p>Total Catches</p>
-              </div>
-            </div>
+<main class="container my-4">
+
+  <!-- Stats Row -->
+  <section id="stats" class="section-anchor mb-4">
+    <div class="row g-3">
+      <div class="col-6 col-md-3">
+        <div class="card text-center"><div class="card-body"><h3 id="stat-total">47</h3><div class="text-muted">Total Catches</div></div></div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card text-center"><div class="card-body"><h3 id="stat-species">12</h3><div class="text-muted">Species</div></div></div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card text-center"><div class="card-body"><h3 id="stat-largest">23.5</h3><div class="text-muted">Largest (lbs)</div></div></div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card text-center"><div class="card-body"><h3 id="stat-days">8</h3><div class="text-muted">Days Fished</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="row g-4">
+    <!-- Left Column: FinLog -->
+    <div class="col-lg-8">
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">FinLog</h5>
+          <a href="#upload" class="btn btn-sm btn-secondary">Add New</a>
+        </div>
+        <div class="card-body">
+          <div id="postGrid" class="row g-3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Profile + Upload -->
+    <div class="col-lg-4">
+      <div class="card mb-4">
+        <div class="card-header"><h5 class="mb-0">Profile</h5></div>
+        <div class="card-body text-center">
+          <div class="mb-3">
+            <div class="bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width:80px;height:80px;"><span class="h4 mb-0">FM</span></div>
           </div>
-          <div class="col-md-3">
-            <div class="card">
-              <div class="card-body text-center">
-                <h3>12</h3>
-                <p>Species Caught</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card">
-              <div class="card-body text-center">
-                <h3>23.5</h3>
-                <p>Largest Fish (lbs)</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card">
-              <div class="card-body text-center">
-                <h3>8</h3>
-                <p>Fishing Days</p>
-              </div>
-            </div>
+          <h5>FishMaster123</h5>
+          <p class="text-muted">Fishing since 2020</p>
+          <hr>
+          <div class="row text-center">
+            <div class="col-6"><h6>47</h6><small class="text-muted">Catches</small></div>
+            <div class="col-6"><h6>12</h6><small class="text-muted">Species</small></div>
           </div>
         </div>
+      </div>
 
-        <div class="row">
-          <!-- Recent Catches Column -->
-          <div class="col-lg-8">
-            <div class="card mb-4">
-              <div class="card-header">
-                <h5 class="mb-0">Recent Catches</h5>
-              </div>
-              <div class="card-body">
-                <div class="mb-3">
-                  <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                      <span class="badge bg-secondary">Bass</span>
-                      <h6 class="mt-2 mb-1">Lake Michigan - Morning Session</h6>
-                      <p class="text-muted mb-1">Weight: 3.2 lbs | Length: 14 inches</p>
-                      <small class="text-muted">March 15, 2024</small>
-                    </div>
-                    <button class="btn btn-outline-secondary btn-sm">View Details</button>
-                  </div>
-                </div>
-                
-                <div class="mb-3">
-                  <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                      <span class="badge bg-secondary">Trout</span>
-                      <h6 class="mt-2 mb-1">Rocky Creek - Evening</h6>
-                      <p class="text-muted mb-1">Weight: 1.8 lbs | Length: 11 inches</p>
-                      <small class="text-muted">March 14, 2024</small>
-                    </div>
-                    <button class="btn btn-outline-secondary btn-sm">View Details</button>
-                  </div>
-                </div>
-                
-                <div class="mb-3">
-                  <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                      <span class="badge bg-secondary">Pike</span>
-                      <h6 class="mt-2 mb-1">Northern Lake - Afternoon</h6>
-                      <p class="text-muted mb-1">Weight: 5.7 lbs | Length: 22 inches</p>
-                      <small class="text-muted">March 13, 2024</small>
-                    </div>
-                    <button class="btn btn-outline-secondary btn-sm">View Details</button>
-                  </div>
-                </div>
-                
-                <div class="text-center mt-3">
-                  <button class="btn btn-secondary">View All Catches</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right Column -->
-          <div class="col-lg-4">
-            <!-- User Profile -->
-            <div class="card mb-4">
-              <div class="card-header">
-                <h5 class="mb-0">User Profile</h5>
-              </div>
-              <div class="card-body text-center">
-                <div class="mb-3">
-                  <div class="bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                    <span class="h4 mb-0">FM</span>
-                  </div>
-                </div>
-                <h5>FishMaster123</h5>
-                <p class="text-muted">Fishing since 2020</p>
-                <hr>
-                <div class="row text-center">
-                  <div class="col-6">
-                    <h6>47</h6>
-                    <small class="text-muted">Total Catches</small>
-                  </div>
-                  <div class="col-6">
-                    <h6>12</h6>
-                    <small class="text-muted">Species</small>
-                  </div>
-                </div>
-                <button class="btn btn-outline-secondary btn-sm mt-3">Edit Profile</button>
-              </div>
-            </div>
-
-
-            <!-- Recent Locations -->
-            <div class="card mb-4">
-              <div class="card-header">
-                <h5 class="mb-0">Recent Locations</h5>
-              </div>
-              <div class="card-body">
-                <ul class="list-group list-group-flush">
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Lake Michigan
-                    <span class="badge bg-secondary rounded-pill">12 catches</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Rocky Creek
-                    <span class="badge bg-secondary rounded-pill">8 catches</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Northern Lake
-                    <span class="badge bg-secondary rounded-pill">5 catches</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
+      <div class="card mb-4" id="upload">
+        <div class="card-header"><h5 class="mb-0">Upload Catch</h5></div>
+        <div class="card-body">
+          <form id="uploadForm">
+            <div class="mb-3"><label for="fileInput" class="form-label">Image</label><input type="file" class="form-control" id="fileInput" accept="image/*" required></div>
+            <div class="mb-3"><label for="detailsInput" class="form-label">Details (one per line)</label><textarea class="form-control" id="detailsInput" rows="5" placeholder="Weight:&#10;Location:&#10;Species:&#10;Bait:&#10;Notes:" required></textarea></div>
+            <button type="submit" class="btn btn-primary w-100">Post</button>
+          </form>
         </div>
       </div>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Map -->
+  <section id="map" class="mt-5">
+    <div class="card">
+      <div class="card-header"><h5 class="mb-0">Fishing Map</h5></div>
+      <div class="card-body">
+        <div id="mapCanvas" class="map-container mb-3"></div>
+        <div id="pin-list" class="pin-list"></div>
+        <button id="clear-pins-btn" class="btn btn-danger btn-sm">Clear Pins</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="modalHost"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+const postGrid = document.getElementById("postGrid");
+const modalHost = document.getElementById("modalHost");
+let nextPostId = 1;
+
+function addPost(id, title, imageNode, details) {
+  const col = document.createElement("div");
+  col.className = "col-12 col-md-6";
+  col.innerHTML = `
+    <div class="card h-100">
+      <button class="btn p-0 text-start" data-bs-toggle="modal" data-bs-target="#modal${id}">
+        <div class="card-body"></div>
+      </button>
+      <div class="card-footer">${title}</div>
+    </div>`;
+  col.querySelector(".card-body").appendChild(imageNode.cloneNode(true));
+  postGrid.prepend(col);
+
+  const modal = document.createElement("div");
+  modal.className = "modal fade";
+  modal.id = "modal" + id;
+  modal.innerHTML = `
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5>${title}</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div class="mb-3 border p-3"></div>
+          <ul class="list-unstyled text-start">${details.map(d=>`<li>${d}</li>`).join("")}</ul>
+        </div>
+      </div>
+    </div>`;
+  modal.querySelector(".modal-body .mb-3").appendChild(imageNode);
+  modalHost.appendChild(modal);
+}
+
+// seed demo posts (6)
+(function seed() {
+  const mkImg = label => {
+    const div = document.createElement("div");
+    div.className = "bg-light d-flex align-items-center justify-content-center";
+    div.style.height = "200px";
+    div.textContent = label;
+    return div;
+  };
+  addPost(1, "Catch #1 - Bass", mkImg("Bass"), ["Weight: 3.2 lb","Location: Lake Michigan","Bait: Worm","Notes: Calm morning"]);
+  addPost(2, "Catch #2 - Trout", mkImg("Trout"), ["Weight: 1.8 lb","Location: Rocky Creek","Bait: Fly","Notes: Clear water"]);
+  addPost(3, "Catch #3 - Pike", mkImg("Pike"), ["Weight: 5.7 lb","Location: Northern Lake","Bait: Spinner","Notes: Overcast"]);
+  addPost(4, "Catch #4 - Catfish", mkImg("Catfish"), ["Weight: 4.1 lb","Location: Green River","Bait: Cut bait","Notes: Night fishing"]);
+  addPost(5, "Catch #5 - Salmon", mkImg("Salmon"), ["Weight: 6.8 lb","Location: Blue Bay","Bait: Lure","Notes: Strong current"]);
+  addPost(6, "Catch #6 - Perch", mkImg("Perch"), ["Weight: 1.2 lb","Location: Silver Pond","Bait: Worm","Notes: Afternoon bite"]);
+})();
+
+document.getElementById("uploadForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const f = document.getElementById("fileInput").files[0];
+  const txt = document.getElementById("detailsInput").value.split(/\r?\n/).filter(Boolean);
+  if (!f) return;
+  const img = document.createElement("img");
+  img.className = "img-fluid rounded";
+  img.src = URL.createObjectURL(f);
+  addPost(++nextPostId, "New Catch", img, txt);
+  e.target.reset();
+});
+
+// === Map ===
+const map = L.map("mapCanvas").setView([40.015, -105.27], 10);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution:"© OpenStreetMap contributors" }).addTo(map);
+const pins = [];
+function addPin(lat,lng,label){const m=L.marker([lat,lng]).addTo(map).bindPopup(label);pins.push(m);updatePinList();}
+function updatePinList(){const list=document.getElementById("pin-list");list.innerHTML="";pins.forEach((p,i)=>{const d=document.createElement("div");d.className="pin-item";d.innerHTML=`Pin ${i+1} <button class="btn btn-sm btn-outline-danger" onclick="removePin(${i})">×</button>`;list.appendChild(d);});if(!pins.length)list.innerHTML='<small class="text-muted">No pins</small>';}
+function removePin(i){map.removeLayer(pins[i]);pins.splice(i,1);updatePinList();}
+document.getElementById("clear-pins-btn").onclick=()=>{pins.forEach(p=>map.removeLayer(p));pins.length=0;updatePinList();};
+map.on("click",e=>addPin(e.latlng.lat,e.latlng.lng,"New Pin"));
+
+// === Stats ===
+function recomputeStats(){document.getElementById('stat-total').textContent=document.querySelectorAll('#postGrid .card').length;}
+const obs=new MutationObserver(recomputeStats);obs.observe(postGrid,{childList:true,subtree:true});recomputeStats();
+</script>
 </body>
 </html>
