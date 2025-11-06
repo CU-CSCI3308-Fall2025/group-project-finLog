@@ -32,9 +32,9 @@
     <div class="row justify-content-center">
       <div class="col-md-8">
         <!-- Scrollable Feed -->
-        <div class="overflow-auto" style="max-height: 100vh; padding-right: 1rem;">
+        <div id="postFeed" class="overflow-auto" style="max-height: 100vh; padding-right: 1rem;">
           
-          <!-- Post 1 -->
+          <!-- Static Posts -->
           <div class="card mb-4">
             <img src="../assets/fishExample.png" class="card-img-top" alt="Post image">
             <div class="card-body">
@@ -52,7 +52,6 @@
             </div>
           </div>
   
-          <!-- Post 2 -->
           <div class="card mb-4">
             <img src="../assets/fishExample2.png" class="card-img-top" alt="Post image">
             <div class="card-body">
@@ -75,5 +74,29 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const postFeed = document.getElementById("postFeed");
+
+    const posts = JSON.parse(localStorage.getItem("posts")) || [];
+ 
+    posts.forEach((post) => {
+      const postCard = `
+        <div class="card mb-4">
+          <img src="${post.image}" class="card-img-top" alt="Post image">
+          <div class="card-body">
+            <p class="card-text">${post.details}</p>
+            <hr>
+            <h6>Comments</h6>
+            <div class="comments" style="max-height: 200px; overflow-y: auto;">
+              <p><strong>user:</strong> Add your first comment!</p>
+            </div>
+            <form class="mt-2">
+              <input type="text" class="form-control" placeholder="Add a comment...">
+            </form>
+          </div>
+        </div>`;
+      postFeed.insertAdjacentHTML("beforeend", postCard);
+    });
+  </script>
 </body>
 </html>
