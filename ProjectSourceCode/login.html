@@ -23,7 +23,7 @@
           <a href="upload.html" class="btn btn-outline-light btn-sm">Upload</a>
         </div>
       </div>
-      <a href="/login" class="btn btn-outline-light">Login</a>
+      <a href="login.html" class="btn btn-outline-light">Login</a>
     </div>
   </header>
 
@@ -57,7 +57,24 @@
   <script>
     document.querySelector('form').addEventListener('submit', function(e) {
       e.preventDefault();
-      window.location.href = 'dashboard.html';
+      const username = document.getElementById('username').value.toLowerCase().trim();
+      const password = document.getElementById('password').value;
+      
+      // Store user session
+      sessionStorage.setItem('username', username);
+      
+      // Redirect based on username
+      if (username === 'admin') {
+        sessionStorage.setItem('userRole', 'admin');
+        window.location.href = 'admin-dashboard.html';
+      } else if (username === 'user') {
+        sessionStorage.setItem('userRole', 'user');
+        window.location.href = 'dashboard.html';
+      } else {
+        // Default: regular user dashboard
+        sessionStorage.setItem('userRole', 'user');
+        window.location.href = 'dashboard.html';
+      }
     });
   </script>
 </body>
