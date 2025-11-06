@@ -31,3 +31,27 @@ work on login page
 get gemini api setup
 get working map
 
+Nov 6 
+Since last time: 
+- Added pins on the map 
+	- using leaflet
+We should keep the manual location choosing option on top of the metadata pulling
+
+- do the stuff that is on the board
+- when we do extra stuff add it to the board and then mark it as done
+- more organization digitally 
+	- better version control !
+- add moderators that are not admins
+	- can flag posts and stuff
+	- no adding other mods tho 
+- admins are like omnipotent tho 
+- fix the hardcoded admin dash thing
+- claire is tuff
+
+NEXT WEEK: 
+- login system 
+- uploads and users in a database
+- ADD STUFF IN THE PROJECT BOARD!!! 
+- ts 
+
+
