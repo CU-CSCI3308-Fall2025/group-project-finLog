@@ -1,0 +1,106 @@
+
+# Feature A — Sighting Upload
+
+I log in as angler_01.
+I open the “New Sighting” form.
+I say out loud: “Species: Rainbow Trout.”
+I say out loud: “Count: 3.”
+I say out loud: “Coordinates: 40.0150, -105.2705.”
+I say out loud: “Date: November 5, 2025.”
+I attach the file test-rainbow.jpg.
+I press submit.
+I say: “I expect a success message and a sighting ID.”
+I click the returned photo URL to make sure the picture loads.
+I refresh my dashboard and say: “The new sighting should appear.”
+Now I submit the form again with species blank.
+I say: “I expect a validation error about species.”
+Now I submit the form with count = -1.
+I say: “I expect a validation error about count.”
+I open the sighting I created.
+I click edit and change count 3 → 4.
+I save and say: “I expect to see count = 4 on the detail page.”
+I log out and log in as angler_02 (a different user).
+I try to edit the sighting owned by angler_01.
+I say: “I expect to be blocked or see no edit option.”
+I log back in as angler_01.
+I delete the sighting I created.
+I try GET /sightings/:id and say: “I expect a 404.”
+
+
+A1. Preconditions: user `angler_01` exists and is logged in.
+A2. Create: POST /sightings or UI form — fields: species="Rainbow Trout", count=3, lat=40.0150, lng=-105.2705, date=2025-11-05, attach "test-rainbow.jpg".
+A3. Expect: HTTP 201 or 200 with JSON {status: "success", sightingId: <id>}.
+A4. Verify: photo accessible at returned `photoUrl` (HTTP 200, image/*).
+A5. Verify: sighting appears on /dashboard and /sightings listing.
+A6. Negative create: submit empty species or count=-1.
+A7. Expect: HTTP 400 with validation messages.
+A8. Edit (owner): PUT /sightings/:id or UI edit — change count 3 -> 4.
+A9. Expect: HTTP 200 and updated data returned; UI shows count=4.
+A10. Edit (non-owner): attempt edit as other user.
+A11. Expect: HTTP 403 or UI hides edit option.
+A12. Delete (owner): DELETE /sightings/:id or UI delete -> confirm.
+A13. Expect: HTTP 204 or 200; GET /sightings/:id returns 404.
+
+# Feature B — User Dashboard 
+I log in as angler_01 for dashboard tests.
+I open /dashboard.
+I say: “The dashboard should load and show my sightings.”
+I filter for species = Rainbow Trout.
+I say: “The list should update to only show Rainbow Trout.”
+I set date range Oct 1, 2025 → Nov 6, 2025 and apply it.
+I say: “The results should match the date filter.”
+I click the star to favorite a sighting.
+I refresh and say: “The favorite should still be starred.”
+I go to my profile.
+I change my display name to Michelle L. and save.
+I say: “My updated name should appear on my profile and sightings.”
+
+B1. Preconditions: user `angler_01` has >=10 sightings.
+B2. Load dashboard: GET /dashboard.
+B3. Expect: HTTP 200; list shows up to page size (e.g., 10) entries.
+B4. Filter: apply species="Rainbow Trout", date_from=2025-10-01, date_to=2025-11-06.
+B5. Expect: listing length matches filtered results; backend returns 200 with filtered JSON.
+B6. Favorite: click star on sighting -> toggle.
+B7. Expect: HTTP 200 and GET /users/:id/favorites contains the sighting.
+B8. Edit profile: change displayName -> "Michelle L." -> save.
+B9. Expect: HTTP 200; profile shows updated name.
+
+# Feature C — Admin Privileges
+I log in as admin_fish for admin tests.
+I open the admin users page.
+I promote angler_02 to admin.
+I say: “The user role should now be admin in the database.”
+I find a sighting owned by someone else.
+I edit the notes as admin and save.
+I say: “The change should be visible in the sighting detail.”
+I delete another user’s sighting as admin.
+I say: “GET on that sighting should return 404.”
+I log in as a regular user and try to access /admin.
+I say: “I should be blocked or get 403.”
+
+C1. Preconditions: admin_user exists and logged in.
+C2. Promote: POST /admin/users/:id/promote (or UI) for `angler_02`.
+C3. Expect: HTTP 200; DB role updated to admin.
+C4. Admin edit any sighting: PUT /admin/sightings/:id -> update notes.
+C5. Expect: HTTP 200; change visible in listing.
+C6. Admin delete any sighting: DELETE /admin/sightings/:id -> confirm.
+C7. Expect: HTTP 204; GET /sightings/:id returns 404.
+C8. Access control negative: regular user GET /admin/* -> Expect HTTP 403.
+
+# Test Data 
+
+D1. Users: angler_01 / angler_02 / admin_fish.
+D2. Passwords: use test credentials 
+D3. Files: test-rainbow.jpg, test-brown.jpg (<=2MB).
+
+
+# Test Environment
+
+E1. Local: docker compose up (Node app port 3000, Postgres 5432) — run tests on [http://localhost:3000](http://localhost:3000).
+E2. Cloud: staging at [staging-url] with snapshot DB.
+E3. Tools: Postman/cURL, Mocha+Chai (npm test), Cypress for E2E.
+
+# Expected Results & Observations
+
+R1. For each case, we should record: TestCaseID | Tester | Date | Env | Result PASS/FAIL | Notes.
+R2. Example entry: A2 | QA_Team | 2025-11-06 | localhost | PASS | sightingId=101; photo saved uploads/101.jpg.
