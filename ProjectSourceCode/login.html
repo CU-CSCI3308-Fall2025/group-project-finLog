@@ -74,6 +74,11 @@
                   </div>
                   
                   <div class="mb-3">
+                    <label for="register-email" class="form-label">Email:</label>
+                    <input type="email" class="form-control" id="register-email" name="email" placeholder="Enter email" required>
+                  </div>
+                  
+                  <div class="mb-3">
                     <label for="register-password" class="form-label">Password:</label>
                     <input type="password" class="form-control" id="register-password" name="password" placeholder="Enter password" required>
                   </div>
@@ -91,36 +96,13 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // Handle Login Form
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const username = document.getElementById('login-username').value.toLowerCase().trim();
+      const username = document.getElementById('login-username').value;
       const password = document.getElementById('login-password').value;
       
-      // Store user session
-      sessionStorage.setItem('username', username);
-      
-      // Redirect based on username
-      if (username === 'admin') {
-        sessionStorage.setItem('userRole', 'admin');
-        window.location.href = 'admin-dashboard.html';
-      } else if (username === 'user') {
-        sessionStorage.setItem('userRole', 'user');
-        window.location.href = 'dashboard.html';
-      } else {
-        // Default: regular user dashboard
-        sessionStorage.setItem('userRole', 'user');
-        window.location.href = 'dashboard.html';
-      }
-    });
-
-    // Handle Register Form
-    document.getElementById('registerForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const username = document.getElementById('register-username').value;
-      const password = document.getElementById('register-password').value;
-      
       try {
-        const response = await fetch('/register', {
+        const response = await fetch('/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -131,6 +113,42 @@
           })
         });
 
+        const result = await response.json();
+
+        if (response.ok) {
+          // Login successful, redirect to dashboard
+          window.location.href = 'dashboard.html';
+        } else {
+          alert(result.message || 'Login failed. Please check your credentials.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred during login. Please try again.');
+      }
+    });
+
+    // Handle Register Form
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const username = document.getElementById('register-username').value;
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      
+      try {
+        const response = await fetch('/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: username,
+            email: email,
+            password: password
+          })
+        });
+
+        const result = await response.json();
+
         if (response.ok) {
           alert('Registration successful! Please login.');
           // Switch to login tab
@@ -139,7 +157,7 @@
           // Clear the register form
           document.getElementById('registerForm').reset();
         } else {
-          alert('Registration failed. Username may already exist.');
+          alert(result.message || 'Registration failed. Please try again.');
         }
       } catch (error) {
         console.error('Error:', error);

@@ -98,5 +98,21 @@
       postFeed.insertAdjacentHTML("beforeend", postCard);
     });
   </script>
+  <script src="auth.js"></script>
+  <script>
+    // Check if user is logged in and update navbar
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const response = await fetch('/api/auth/check');
+        const result = await response.json();
+        
+        if (result.authenticated) {
+          updateNavbarWithUser(result.user);
+        }
+      } catch (error) {
+        console.log('Not authenticated');
+      }
+    });
+  </script>
 </body>
 </html>

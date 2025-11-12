@@ -5,7 +5,7 @@
     const formData = new FormData(form); // Collect form data
 
     try {
-      const response = await fetch("https://your-server-endpoint/upload", {
+      const response = await fetch("/upload", {
         method: "POST",
         body: formData,
       });
@@ -14,9 +14,16 @@
         const result = await response.json();
         alert("Post uploaded successfully!");
         console.log(result); // Handle the server response
+        
+        // Optionally reset the form
+        form.reset();
+        
+        // Optionally redirect to dashboard or feed
+        // window.location.href = '/dashboard.html';
       } else {
-        alert("Failed to upload post. Please try again.");
-        console.error("Error:", response.statusText);
+        const error = await response.json();
+        alert(`Failed to upload post: ${error.message}`);
+        console.error("Error:", error);
       }
     } catch (error) {
       alert("An error occurred while uploading the post.");

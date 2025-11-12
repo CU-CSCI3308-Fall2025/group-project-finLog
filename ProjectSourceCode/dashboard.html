@@ -81,14 +81,17 @@
         </div>
       </div>
 
-      <div class="card mb-4" id="upload">
-        <div class="card-header"><h5 class="mb-0">Upload Catch</h5></div>
-        <div class="card-body">
-          <form id="uploadForm">
-            <div class="mb-3"><label for="fileInput" class="form-label">Image</label><input type="file" class="form-control" id="fileInput" accept="image/*" required></div>
-            <div class="mb-3"><label for="detailsInput" class="form-label">Details (one per line)</label><textarea class="form-control" id="detailsInput" rows="5" placeholder="Weight:&#10;Location:&#10;Species:&#10;Bait:&#10;Notes:" required></textarea></div>
-            <button type="submit" class="btn btn-primary w-100">Post</button>
-          </form>
+      <div class="card mb-4">
+        <div class="card-header"><h5 class="mb-0">Quick Actions</h5></div>
+        <div class="card-body text-center">
+          <a href="upload.html" class="btn btn-primary w-100 mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-upload me-2" viewBox="0 0 16 16">
+              <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+              <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+            </svg>
+            Upload New Catch
+          </a>
+          <a href="map_page.html" class="btn btn-outline-secondary w-100">View Map</a>
         </div>
       </div>
     </div>
@@ -101,7 +104,6 @@
       <div class="card-body">
         <div id="mapCanvas" class="map-container mb-3"></div>
         <div id="pin-list" class="pin-list"></div>
-        <button id="clear-pins-btn" class="btn btn-danger btn-sm">Clear Pins</button>
       </div>
     </div>
   </section>
@@ -110,83 +112,118 @@
 <div id="modalHost"></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="auth.js"></script>
 
 <script>
-const postGrid = document.getElementById("postGrid");
-const modalHost = document.getElementById("modalHost");
-let nextPostId = 1;
+let currentUser = null;
 
-function addPost(id, title, imageNode, details) {
-  const col = document.createElement("div");
-  col.className = "col-12 col-md-6";
-  col.innerHTML = `
-    <div class="card h-100">
-      <button class="btn p-0 text-start" data-bs-toggle="modal" data-bs-target="#modal${id}">
-        <div class="card-body"></div>
-      </button>
-      <div class="card-footer">${title}</div>
-    </div>`;
-  col.querySelector(".card-body").appendChild(imageNode.cloneNode(true));
-  postGrid.prepend(col);
+// Check authentication on page load
+window.addEventListener('DOMContentLoaded', async () => {
+  currentUser = await checkAuth();
+  if (currentUser) {
+    updateNavbarWithUser(currentUser);
+    loadUserProfile();
+    loadUserPosts();
+    loadMapLocations();
+  }
+});
 
-  const modal = document.createElement("div");
-  modal.className = "modal fade";
-  modal.id = "modal" + id;
-  modal.innerHTML = `
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5>${title}</h5>
-          <button class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body text-center">
-          <div class="mb-3 border p-3"></div>
-          <ul class="list-unstyled text-start">${details.map(d=>`<li>${d}</li>`).join("")}</ul>
-        </div>
-      </div>
-    </div>`;
-  modal.querySelector(".modal-body .mb-3").appendChild(imageNode);
-  modalHost.appendChild(modal);
+async function loadUserProfile() {
+  document.querySelector('.card-body h5').textContent = currentUser.username;
+  document.querySelector('.bg-secondary.text-white.rounded-circle span').textContent = currentUser.username.substring(0, 2).toUpperCase();
 }
 
-// seed demo posts (6)
-(function seed() {
-  const mkImg = label => {
-    const div = document.createElement("div");
-    div.className = "bg-light d-flex align-items-center justify-content-center";
-    div.style.height = "200px";
-    div.textContent = label;
-    return div;
-  };
-  addPost(1, "Catch #1 - Bass", mkImg("Bass"), ["Weight: 3.2 lb","Location: Lake Michigan","Bait: Worm","Notes: Calm morning"]);
-  addPost(2, "Catch #2 - Trout", mkImg("Trout"), ["Weight: 1.8 lb","Location: Rocky Creek","Bait: Fly","Notes: Clear water"]);
-  addPost(3, "Catch #3 - Pike", mkImg("Pike"), ["Weight: 5.7 lb","Location: Northern Lake","Bait: Spinner","Notes: Overcast"]);
-  addPost(4, "Catch #4 - Catfish", mkImg("Catfish"), ["Weight: 4.1 lb","Location: Green River","Bait: Cut bait","Notes: Night fishing"]);
-  addPost(5, "Catch #5 - Salmon", mkImg("Salmon"), ["Weight: 6.8 lb","Location: Blue Bay","Bait: Lure","Notes: Strong current"]);
-  addPost(6, "Catch #6 - Perch", mkImg("Perch"), ["Weight: 1.2 lb","Location: Silver Pond","Bait: Worm","Notes: Afternoon bite"]);
-})();
+async function loadUserPosts() {
+  try {
+    const response = await fetch(`/api/user/posts`);
+    const result = await response.json();
+    
+    if (result.status === 'success' && result.data) {
+      const postGrid = document.getElementById('postGrid');
+      postGrid.innerHTML = '';
+      
+      result.data.forEach(post => {
+        addPost(post.post_id, post.caption, post.date_created, post.image_path);
+      });
+      
+      // Update stats
+      document.getElementById('stat-total').textContent = result.data.length;
+    }
+  } catch (error) {
+    console.error('Error loading posts:', error);
+  }
+}
 
-document.getElementById("uploadForm").addEventListener("submit", e => {
-  e.preventDefault();
-  const f = document.getElementById("fileInput").files[0];
-  const txt = document.getElementById("detailsInput").value.split(/\r?\n/).filter(Boolean);
-  if (!f) return;
-  const img = document.createElement("img");
-  img.className = "img-fluid rounded";
-  img.src = URL.createObjectURL(f);
-  addPost(++nextPostId, "New Catch", img, txt);
-  e.target.reset();
-});
+function addPost(id, caption, date, imagePath) {
+  const postGrid = document.getElementById('postGrid');
+  const col = document.createElement('div');
+  col.className = 'col-12 col-md-6';
+  col.innerHTML = `
+    <div class="card h-100">
+      <img src="${imagePath}" class="card-img-top" alt="Post image" style="height: 200px; object-fit: cover;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E'">
+      <div class="card-body">
+        <h6 class="mb-2">Post #${id}</h6>
+        <p class="text-muted small mb-2">${new Date(date).toLocaleDateString()}</p>
+        <p class="mb-0">${caption || 'No caption'}</p>
+      </div>
+    </div>`;
+  postGrid.appendChild(col);
+}
 
 // === Map ===
 const map = L.map("mapCanvas").setView([40.015, -105.27], 10);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution:"© OpenStreetMap contributors" }).addTo(map);
-const pins = [];
-function addPin(lat,lng,label){const m=L.marker([lat,lng]).addTo(map).bindPopup(label);pins.push(m);updatePinList();}
-function updatePinList(){const list=document.getElementById("pin-list");list.innerHTML="";pins.forEach((p,i)=>{const d=document.createElement("div");d.className="pin-item";d.innerHTML=`Pin ${i+1} <button class="btn btn-sm btn-outline-danger" onclick="removePin(${i})">×</button>`;list.appendChild(d);});if(!pins.length)list.innerHTML='<small class="text-muted">No pins</small>';}
-function removePin(i){map.removeLayer(pins[i]);pins.splice(i,1);updatePinList();}
-document.getElementById("clear-pins-btn").onclick=()=>{pins.forEach(p=>map.removeLayer(p));pins.length=0;updatePinList();};
-map.on("click",e=>addPin(e.latlng.lat,e.latlng.lng,"New Pin"));
+
+const icon = L.icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+// Fetch and display locations from database
+async function loadMapLocations() {
+  try {
+    const response = await fetch('/api/locations');
+    const result = await response.json();
+    
+    if (result.status === 'success' && result.data) {
+      const pinList = document.getElementById('pin-list');
+      pinList.innerHTML = '';
+      
+      result.data.forEach(location => {
+        const marker = L.marker([location.x_coord, location.y_coord], { icon })
+          .addTo(map)
+          .bindPopup(`
+            <b>${location.username}</b><br>
+            ${location.caption || 'No caption'}<br>
+            <small>${new Date(location.date_created).toLocaleDateString()}</small>
+          `);
+        
+        const pinItem = document.createElement('div');
+        pinItem.className = 'pin-item';
+        pinItem.innerHTML = `<small><strong>${location.username}</strong>: ${location.caption || 'No caption'}</small>`;
+        pinList.appendChild(pinItem);
+      });
+      
+      if (result.data.length === 0) {
+        pinList.innerHTML = '<small class="text-muted">No locations yet</small>';
+      }
+      
+      // Center map on first location if available
+      if (result.data.length > 0) {
+        map.setView([result.data[0].x_coord, result.data[0].y_coord], 10);
+      }
+    }
+  } catch (error) {
+    console.error('Error loading locations:', error);
+    document.getElementById('pin-list').innerHTML = '<small class="text-muted">No locations yet</small>';
+  }
+}
+
+loadMapLocations();
 
 // === Stats ===
 function recomputeStats(){document.getElementById('stat-total').textContent=document.querySelectorAll('#postGrid .card').length;}
