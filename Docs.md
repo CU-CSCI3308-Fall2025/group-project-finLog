@@ -23,3 +23,8 @@
 - the user dashboard uses queries using userid, postid and imageid, to fetch the correct image to display for a post
 
 - All data displayed in the frontend is fetched using api requests that execute SQL queries in our backend to fetch that data for a specific user/post/image/etc. 
+
+### for admin stuff 
+- I think creating a new admin table with userid, admin_power, might work for checking validating admins 
+- admin power attribute could have 2 possible values ( "moderator", "admin") with admin having > power than moderator
+- We could hardcode these using "insert into" statements so that this table is not modified by any code, the admins are simply hardcoded from the start into this table and consecutively the users table as well since they need to be in both
