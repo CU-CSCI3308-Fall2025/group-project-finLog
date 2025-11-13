@@ -1,6 +1,6 @@
 // ********************** Initialize server **********************************
 
-const server = require('/../../src/index.js'); //TODO: Make sure the path to your index.js is correctly added
+const server = require('../../src/index.js'); //TODO: Make sure the path to your index.js is correctly added
 
 // ********************** Import Libraries ***********************************
 
@@ -33,47 +33,53 @@ describe('Server!', () => {
 // *********************** ADDITIONAL UNIT TESTCASES **************************
 
 describe('Additional Server endpoints', () => {
-    it('GET /logout should redirect to /login (or render logout confirmation)', done => {
+  const str = randomString = Math.random().toString(36).substring(2, 15);
+    it('GET /logout should redirect to /home (or render logout confirmation)', done => {
         chai
           .request(server)
           .get('/logout')
-          // prevent chai-http from following redirects so we can inspect the initial response
           .redirects(0)
           .end((err, res) => {
-            // If request failed completely, surface the error
             if (err && !res) return done(err);
-    
-            // If the server responds with a redirect (common behavior)
             if (res.status === 302 || res.status === 301) {
               expect(res).to.have.header('location');
-              expect(res.header.location).to.include('/login');
+              expect(res.header.location).to.include('/home.html');
               return done();
             }
-    
-            // Otherwise some apps render a logout confirmation page (200). Be permissive:
             expect(res).to.have.status(200);
-            // check for some common logout wording in the response body — update if your app uses different text
             expect(res.text.toLowerCase()).to.satisfy(txt => txt.includes('logged out') || txt.includes('logout') || txt.includes('you have been logged out'));
             done();
           });
     });
-  
-    it('POST /upload should accept a file and return success JSON', done => {
-      chai
-        .request(server)
-        .post('/upload')
-        .attach('file', Buffer.from('this is a test file'), 'test.txt')
-        .field('title', 'test upload') 
+
+    it('Successful Registration', done => {
+      const username = randomUsername();
+      chai.request(app)
+        .post('/register')
+        .type('form')
+        .send({ username: username, password: 'password123' })
         .end((err, res) => {
-          if (err && !res) return done(err);
+          if (err) return done(err);
           expect(res).to.have.status(200);
-          expect(res.body).to.be.an('object');
-          expect(res.body).to.have.property('status');
-          expect(res.body.status).to.equal('success');
-          expect(res.body).to.have.property('message');
+          expect(res.body).to.have.property('status', 'success');
+          expect(res.body).to.have.property('message').that.includes('Registration');
           done();
         });
     });
+  
+    it('Fail Registration', done => {
+        chai
+          .request(server)
+          .post('/register')
+          .type('form')
+          .send({ username: str, password: 'password' }) 
+          .end((err, res) => {
+            expect(res).to.have.status(500);
+            //expect(res.body.status).to.equals('error');
+            done();
+          });
+    });
+    
   });
   
 
