@@ -10,15 +10,21 @@
 
   <header class="p-2 bg-secondary text-white">
     <div class="d-flex justify-content-between align-items-center">
-      <h1 class="m-0">FINLOG</h1>
-      <div class="text-center">
-        <div class="mt-1">
-        <input type="search"
-                class="form-control rounded-pill py-2 search-bar"
-                placeholder="Search for a Place, Space or a type of Fish!">
-        </div>
-      </div>
-      <a href="login.html" class="btn btn-outline-light">Login</a>
+        <div class="header-left">
+            <h1 class="m-0">FINLOG</h1>
+          </div>
+        
+          <div class="header-center flex-grow-1 d-flex justify-content-center">
+            <input 
+              type="search"
+              class="form-control search-bar"
+              placeholder="Search for a Place, Space or type of Fish!"
+            >
+          </div>
+        
+          <div class="header-right">
+            <a href="login.html" class="btn btn-outline-light">Login</a>
+          </div>
     </div>
   </header>
   
@@ -41,9 +47,6 @@
         
         <div id="postFeed" class="overflow-auto" style="max-height: 100vh; padding-right: 1rem;">
             <div class="pt-3 pb-2" style="z-index: 1020;">
-                  <input type="search"
-                         class="form-control rounded-pill py-2 search-bar"
-                         placeholder="Search for a Place, Space or a type of Fish!">
                   <div class="search-type">
                     <button class="btn btn-outline-secondary rounded-pill btn-sm active">For you</button>
                     <button class="btn btn-outline-secondary rounded-pill btn-sm">Recent</button>
@@ -138,10 +141,3 @@
 </body>
 </html>
 
-
-<!-->
-<!<a href="home.html" class="btn btn-outline-light btn-sm me-2">Home</a>
-<a href="finlog.html" class="btn btn-outline-light btn-sm me-2">Fish Log</a>
-<a href="map_page.html" class="btn btn-outline-light btn-sm me-2">Map</a>
-<a href="upload.html" class="btn btn-outline-light btn-sm me-2">Upload</a>
-<a href="dashboard.html" class="btn btn-outline-light btn-sm">Dashboard</a>-->
