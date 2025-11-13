@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS moderators (
     moderator_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
+    admin_power VARCHAR(50) NOT NULL DEFAULT 'moderator' CHECK (admin_power IN ('moderator', 'admin')),
     assigned_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
@@ -20,6 +21,7 @@ CREATE TABLE IF NOT EXISTS posts (
     user_id INT NOT NULL,
     caption TEXT,
     date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'flagged', 'deleted')),
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 

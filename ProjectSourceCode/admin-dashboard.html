@@ -28,7 +28,7 @@
     </div>
     <div>
       <span class="me-2" id="loggedInUser">Admin</span>
-      <a href="login.html" class="btn btn-outline-light" onclick="sessionStorage.clear()">Logout</a>
+      <a href="/logout" class="btn btn-outline-light">Logout</a>
     </div>
   </div>
 </header>
@@ -94,20 +94,69 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-const username = sessionStorage.getItem('username');
-const userRole = sessionStorage.getItem('userRole');
-
-if (username) {
-  document.getElementById('loggedInUser').textContent = username;
-}
-
-if (userRole !== 'admin' && username !== 'admin') {
-  alert('Access denied. Admin access required.');
-  window.location.href = 'dashboard.html';
-}
-
 const moderationQueue = document.getElementById("moderationQueue");
 let allPosts = [];
+let currentUser = null;
+let userRole = null;
+
+// Check authentication and admin access
+async function checkAdminAccess() {
+  try {
+    const response = await fetch('/api/auth/check');
+    const result = await response.json();
+    
+    if (!result.authenticated) {
+      window.location.href = 'login.html';
+      return false;
+    }
+    
+    currentUser = result.user;
+    userRole = currentUser.role || 'user';
+    
+    // Update UI with username
+    if (currentUser.username) {
+      document.getElementById('loggedInUser').textContent = currentUser.username;
+    }
+    
+    // Check if user is moderator or admin
+    if (userRole !== 'admin' && userRole !== 'moderator') {
+      alert('Access denied. Admin or moderator access required.');
+      window.location.href = 'dashboard.html';
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Auth check failed:', error);
+    window.location.href = 'login.html';
+    return false;
+  }
+}
+
+// Fetch all posts for moderation
+async function loadPosts() {
+  try {
+    const response = await fetch('/api/admin/posts');
+    const result = await response.json();
+    
+    if (result.status === 'success' && result.data) {
+      allPosts = result.data;
+      updateStats();
+      renderPosts();
+    } else {
+      console.error('Failed to load posts:', result.message);
+      moderationQueue.innerHTML = '<div class="text-center text-muted py-4">Failed to load posts. Please try again.</div>';
+    }
+  } catch (error) {
+    console.error('Error loading posts:', error);
+    // If unauthorized, redirect to login
+    if (error.message.includes('401') || error.message.includes('403')) {
+      window.location.href = 'login.html';
+    } else {
+      moderationQueue.innerHTML = '<div class="text-center text-muted py-4">Error loading posts. Please try again.</div>';
+    }
+  }
+}
 
 const mkImg = label => {
   const div = document.createElement("div");
@@ -116,53 +165,6 @@ const mkImg = label => {
   div.textContent = label;
   return div;
 };
-
-function initializeDemoData() {
-  allPosts = [
-    {
-      id: 1,
-      username: "FishMaster123",
-      title: "Catch #1 - Bass",
-      image: "Bass",
-      details: ["Weight: 3.2 lb","Location: Lake Michigan","Bait: Worm","Notes: Calm morning"],
-      status: "approved"
-    },
-    {
-      id: 2,
-      username: "AnglerPro",
-      title: "Catch #2 - Trout",
-      image: "Trout",
-      details: ["Weight: 1.8 lb","Location: Rocky Creek","Bait: Fly","Notes: Clear water"],
-      status: "pending"
-    },
-    {
-      id: 3,
-      username: "RiverRat",
-      title: "Catch #3 - Pike",
-      image: "Pike",
-      details: ["Weight: 5.7 lb","Location: Northern Lake","Bait: Spinner","Notes: Overcast"],
-      status: "flagged"
-    },
-    {
-      id: 4,
-      username: "FishMaster123",
-      title: "Catch #4 - Catfish",
-      image: "Catfish",
-      details: ["Weight: 4.1 lb","Location: Green River","Bait: Cut bait","Notes: Night fishing"],
-      status: "approved"
-    },
-    {
-      id: 5,
-      username: "NewAngler",
-      title: "Catch #5 - Salmon",
-      image: "Salmon",
-      details: ["Weight: 6.8 lb","Location: Blue Bay","Bait: Lure","Notes: Strong current"],
-      status: "pending"
-    }
-  ];
-  updateStats();
-  renderPosts();
-}
 
 function renderPosts(filteredPosts = null) {
   const posts = filteredPosts || allPosts;
@@ -174,76 +176,125 @@ function renderPosts(filteredPosts = null) {
   }
 
   posts.forEach(post => {
-    const statusClass = post.status === "flagged" ? "flagged" : 
-                       post.status === "deleted" ? "deleted" : 
-                       post.status === "approved" ? "approved" : "";
+    const status = post.status || 'pending';
+    const statusClass = status === "flagged" ? "flagged" : 
+                       status === "deleted" ? "deleted" : 
+                       status === "approved" ? "approved" : "";
     
     const postDiv = document.createElement("div");
     postDiv.className = `card post-card ${statusClass}`;
+    
+    // Show delete button only for admins
+    const deleteButton = userRole === 'admin' 
+      ? `<button class="btn btn-sm btn-danger" onclick="deletePost(${post.post_id})" ${status === "deleted" ? "disabled" : ""}>🗑 Delete</button>`
+      : '';
+    
     postDiv.innerHTML = `
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-start mb-2">
           <div>
-            <h6 class="mb-1">${post.title}</h6>
+            <h6 class="mb-1">Post #${post.post_id}</h6>
             <div class="small text-muted">
               <strong>User:</strong> ${post.username}<br>
-              <span class="badge bg-${getStatusColor(post.status)}">${post.status.toUpperCase()}</span>
+              <span class="badge bg-${getStatusColor(status)}">${status.toUpperCase()}</span>
             </div>
           </div>
           <div class="d-flex gap-2 flex-wrap">
-            <button class="btn btn-sm btn-success" onclick="approvePost(${post.id})" ${post.status === "approved" ? "disabled" : ""}>✓ Approve</button>
-            <button class="btn btn-sm btn-warning" onclick="flagPost(${post.id})" ${post.status === "flagged" ? "disabled" : ""}>⚠ Flag</button>
-            <button class="btn btn-sm btn-danger" onclick="deletePost(${post.id})" ${post.status === "deleted" ? "disabled" : ""}>🗑 Delete</button>
+            <button class="btn btn-sm btn-success" onclick="approvePost(${post.post_id})" ${status === "approved" ? "disabled" : ""}>✓ Approve</button>
+            <button class="btn btn-sm btn-warning" onclick="flagPost(${post.post_id})" ${status === "flagged" ? "disabled" : ""}>⚠ Flag</button>
+            ${deleteButton}
           </div>
         </div>
         <div class="row">
           <div class="col-md-3"></div>
           <div class="col-md-9">
-            <ul class="list-unstyled mb-0">${post.details.map(d=>`<li>${d}</li>`).join("")}</ul>
+            <p class="mb-2">${post.caption || 'No caption'}</p>
+            <small class="text-muted">${new Date(post.date_created).toLocaleDateString()}</small>
           </div>
         </div>
       </div>
     `;
+    
+    // Add image if available
     const imgContainer = postDiv.querySelector(".col-md-3");
-    imgContainer.appendChild(mkImg(post.image));
+    if (post.image_path) {
+      const img = document.createElement("img");
+      img.src = post.image_path;
+      img.className = "img-fluid rounded";
+      img.style.height = "150px";
+      img.style.objectFit = "cover";
+      img.style.width = "100%";
+      img.onerror = () => imgContainer.appendChild(mkImg("No Image"));
+      imgContainer.appendChild(img);
+    } else {
+      imgContainer.appendChild(mkImg("No Image"));
+    }
+    
     moderationQueue.appendChild(postDiv);
   });
 }
 
-function approvePost(postId) {
-  const post = allPosts.find(p => p.id === postId);
-  if (post) {
-    post.status = "approved";
-    renderPosts();
-    updateStats();
-  }
+async function approvePost(postId) {
+  await updatePostStatus(postId, 'approved');
 }
 
-function flagPost(postId) {
-  const post = allPosts.find(p => p.id === postId);
-  if (post) {
-    post.status = "flagged";
-    renderPosts();
-    updateStats();
-  }
+async function flagPost(postId) {
+  await updatePostStatus(postId, 'flagged');
 }
 
-function deletePost(postId) {
+async function deletePost(postId) {
+  if (userRole !== 'admin') {
+    alert('Only admins can delete posts.');
+    return;
+  }
+  
   if (confirm("Are you sure you want to delete this post? This action cannot be undone.")) {
-    const post = allPosts.find(p => p.id === postId);
-    if (post) {
-      post.status = "deleted";
-      renderPosts();
-      updateStats();
+    try {
+      const response = await fetch(`/api/admin/posts/${postId}`, {
+        method: 'DELETE'
+      });
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        await loadPosts(); // Reload posts
+      } else {
+        alert('Failed to delete post: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert('An error occurred while deleting the post.');
     }
+  }
+}
+
+async function updatePostStatus(postId, status) {
+  try {
+    const response = await fetch(`/api/admin/posts/${postId}/status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ status })
+    });
+    
+    const result = await response.json();
+    
+    if (result.status === 'success') {
+      await loadPosts(); // Reload posts
+    } else {
+      alert('Failed to update post: ' + result.message);
+    }
+  } catch (error) {
+    console.error('Error updating post status:', error);
+    alert('An error occurred while updating the post.');
   }
 }
 
 function updateStats() {
   document.getElementById("stat-total-posts").textContent = allPosts.length;
-  document.getElementById("stat-flagged").textContent = allPosts.filter(p => p.status === "flagged").length;
-  document.getElementById("stat-pending").textContent = allPosts.filter(p => p.status === "pending").length;
-  document.getElementById("stat-approved").textContent = allPosts.filter(p => p.status === "approved").length;
+  document.getElementById("stat-flagged").textContent = allPosts.filter(p => (p.status || 'pending') === "flagged").length;
+  document.getElementById("stat-pending").textContent = allPosts.filter(p => (p.status || 'pending') === "pending").length;
+  document.getElementById("stat-approved").textContent = allPosts.filter(p => (p.status || 'pending') === "approved").length;
 }
 
 document.getElementById("searchInput").addEventListener("input", applyFilters);
@@ -261,13 +312,13 @@ function applyFilters() {
 
   if (searchTerm) {
     filtered = filtered.filter(post => 
-      post.title.toLowerCase().includes(searchTerm) ||
+      (post.caption && post.caption.toLowerCase().includes(searchTerm)) ||
       post.username.toLowerCase().includes(searchTerm)
     );
   }
 
   if (statusFilter !== "all") {
-    filtered = filtered.filter(post => post.status === statusFilter);
+    filtered = filtered.filter(post => (post.status || 'pending') === statusFilter);
   }
 
   renderPosts(filtered);
@@ -280,10 +331,16 @@ function getStatusColor(status) {
     flagged: "danger",
     deleted: "secondary"
   };
-  return colors[status] || "secondary";
+  return colors[status] || "warning";
 }
 
-initializeDemoData();
+// Initialize on page load
+(async () => {
+  const isAuth = await checkAdminAccess();
+  if (isAuth) {
+    await loadPosts();
+  }
+})();
 </script>
 </body>
 </html>

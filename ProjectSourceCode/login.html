@@ -115,9 +115,17 @@
 
         const result = await response.json();
 
-        if (response.ok) {
-          // Login successful, redirect to dashboard
-          window.location.href = 'dashboard.html';
+        if (response.ok && result.user) {
+          // Redirect based on role
+          const role = result.user.role || 'user';
+          
+          if (role === 'admin' || role === 'moderator') {
+            // Admins and moderators go to admin dashboard
+            window.location.href = 'admin-dashboard.html';
+          } else {
+            // Regular users go to user dashboard
+            window.location.href = 'dashboard.html';
+          }
         } else {
           alert(result.message || 'Login failed. Please check your credentials.');
         }

@@ -143,12 +143,27 @@ app.post('/login', async (req, res) => {
     const match = await bcrypt.compare(req.body.password, user.user_password);
 
     if (match) {
+      // Check if user is moderator or admin
+      const moderatorQuery = `SELECT * FROM moderators WHERE user_id = $1`;
+      const moderator = await db.oneOrNone(moderatorQuery, [user.user_id]);
+      
+      let role = 'user'; // Default role
+      if (moderator) {
+        role = moderator.admin_power; // 'moderator' or 'admin'
+      }
+      
       req.session.user = user;
+      req.session.role = role; // Store role in session
       req.session.save();
+      
       res.status(200).json({
         status: 'success',
         message: 'Login successful!',
-        user: { username: user.username, user_id: user.user_id }
+        user: { 
+          username: user.username, 
+          user_id: user.user_id,
+          role: role // Return role to frontend
+        }
       });
     } else {
       res.status(401).json({
@@ -202,15 +217,27 @@ app.get('/api/locations', async (req, res) => {
 });
 
 // Check if user is authenticated
-app.get('/api/auth/check', (req, res) => {
+app.get('/api/auth/check', async (req, res) => {
   if (req.session.user) {
+    // Check role if not already in session (for backward compatibility)
+    let role = req.session.role;
+    if (!role) {
+      const moderator = await db.oneOrNone(
+        'SELECT * FROM moderators WHERE user_id = $1',
+        [req.session.user.user_id]
+      );
+      role = moderator ? moderator.admin_power : 'user';
+      req.session.role = role;
+    }
+    
     res.status(200).json({
       status: 'success',
       authenticated: true,
       user: {
         user_id: req.session.user.user_id,
         username: req.session.user.username,
-        user_email: req.session.user.user_email
+        user_email: req.session.user.user_email,
+        role: role // Include role in response
       }
     });
   } else {
@@ -229,6 +256,169 @@ app.get('/logout', (req, res) => {
     }
     res.redirect('/home.html');
   });
+});
+
+// *****************************************************
+// <!-- Admin Middleware -->
+// *****************************************************
+
+// Middleware: Require moderator OR admin (both can access)
+const requireModerator = async (req, res, next) => {
+  if (!req.session.user) {
+    return res.status(401).json({ status: 'error', message: 'Not authenticated' });
+  }
+  
+  // Check role in session first
+  let role = req.session.role;
+  if (!role) {
+    const moderator = await db.oneOrNone(
+      'SELECT * FROM moderators WHERE user_id = $1',
+      [req.session.user.user_id]
+    );
+    role = moderator ? moderator.admin_power : 'user';
+    req.session.role = role;
+  }
+  
+  if (role === 'user') {
+    return res.status(403).json({ status: 'error', message: 'Moderator access required' });
+  }
+  
+  // Store role in request for use in route handlers
+  req.userRole = role;
+  next();
+};
+
+// Middleware: Require admin ONLY (higher tier)
+const requireAdmin = async (req, res, next) => {
+  if (!req.session.user) {
+    return res.status(401).json({ status: 'error', message: 'Not authenticated' });
+  }
+  
+  // Check role in session first
+  let role = req.session.role;
+  if (!role) {
+    const moderator = await db.oneOrNone(
+      'SELECT * FROM moderators WHERE user_id = $1',
+      [req.session.user.user_id]
+    );
+    role = moderator ? moderator.admin_power : 'user';
+    req.session.role = role;
+  }
+  
+  if (role !== 'admin') {
+    return res.status(403).json({ 
+      status: 'error', 
+      message: 'Admin access required. Moderators do not have permission.' 
+    });
+  }
+  
+  req.userRole = 'admin';
+  next();
+};
+
+// *****************************************************
+// <!-- Admin API Routes -->
+// *****************************************************
+
+// Get all posts for moderation (moderators + admins)
+app.get('/api/admin/posts', requireModerator, async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        p.post_id,
+        p.caption,
+        p.date_created,
+        p.status,
+        u.username,
+        u.user_id
+      FROM posts p
+      JOIN users u ON p.user_id = u.user_id
+      ORDER BY p.date_created DESC;
+    `;
+    
+    const posts = await db.any(query);
+    
+    // Add image path to each post
+    const postsWithImages = posts.map(post => {
+      const extensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+      let imagePath = null;
+      
+      for (const ext of extensions) {
+        const filePath = path.join(__dirname, '../user_images', `${post.post_id}${ext}`);
+        if (fs.existsSync(filePath)) {
+          imagePath = `/user_images/${post.post_id}${ext}`;
+          break;
+        }
+      }
+      
+      return {
+        ...post,
+        image_path: imagePath || `/user_images/${post.post_id}.jpg`
+      };
+    });
+    
+    res.status(200).json({
+      status: 'success',
+      data: postsWithImages
+    });
+  } catch (error) {
+    console.error('Error fetching admin posts:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to fetch posts'
+    });
+  }
+});
+
+// Update post status (approve, flag, pending) - moderators + admins
+app.put('/api/admin/posts/:id/status', requireModerator, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    if (!['pending', 'approved', 'flagged'].includes(status)) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Invalid status. Must be: pending, approved, or flagged'
+      });
+    }
+    
+    const query = `UPDATE posts SET status = $1 WHERE post_id = $2 RETURNING *`;
+    const updated = await db.one(query, [status, id]);
+    
+    res.status(200).json({
+      status: 'success',
+      message: 'Post status updated',
+      data: updated
+    });
+  } catch (error) {
+    console.error('Error updating post status:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to update post status'
+    });
+  }
+});
+
+// Delete post permanently (admins only)
+app.delete('/api/admin/posts/:id', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const query = `DELETE FROM posts WHERE post_id = $1 RETURNING *`;
+    const deleted = await db.one(query, [id]);
+    
+    res.status(200).json({
+      status: 'success',
+      message: 'Post deleted',
+      data: deleted
+    });
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to delete post'
+    });
+  }
 });
 
 // Get current user's posts
