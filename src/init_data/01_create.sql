@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
     user_email VARCHAR(255) NOT NULL UNIQUE,
-    user_password VARCHAR(255) NOT NULL
+    user_password VARCHAR(255) NOT NULL,
+    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create moderators table
@@ -20,6 +21,8 @@ CREATE TABLE IF NOT EXISTS posts (
     post_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     caption TEXT,
+    fish_weight DECIMAL(10, 2),
+    fish_species VARCHAR(255),
     date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'flagged', 'deleted')),
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE

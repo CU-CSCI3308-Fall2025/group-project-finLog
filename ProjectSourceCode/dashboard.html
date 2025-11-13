@@ -131,6 +131,33 @@ window.addEventListener('DOMContentLoaded', async () => {
 async function loadUserProfile() {
   document.querySelector('.card-body h5').textContent = currentUser.username;
   document.querySelector('.bg-secondary.text-white.rounded-circle span').textContent = currentUser.username.substring(0, 2).toUpperCase();
+
+  try {
+    const response = await fetch(`/api/user/stats`);
+    const result = await response.json();
+
+    if (result.status === 'success' && result.data) {
+      const stats = result.data;
+      const today = new Date();
+      const creationDate = new Date(stats.user_creation_date);
+      const diffTime = Math.abs(today - creationDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      // Stats row
+      document.getElementById('stat-total').textContent = stats.total_catches || 0;
+      document.getElementById('stat-species').textContent = stats.species_count || 0;
+      document.getElementById('stat-largest').textContent = stats.largest_catch || 0;
+      document.getElementById('stat-days').textContent = diffDays;
+
+      // Profile card
+      document.querySelector('.card-body p.text-muted').textContent = `Fishing since ${creationDate.getFullYear()}`;
+      const profileStats = document.querySelector('.card-body .row.text-center');
+      profileStats.children[0].querySelector('h6').textContent = stats.total_catches || 0;
+      profileStats.children[1].querySelector('h6').textContent = stats.species_count || 0;
+    }
+  } catch (error) {
+    console.error('Error loading user stats:', error);
+  }
 }
 
 async function loadUserPosts() {
