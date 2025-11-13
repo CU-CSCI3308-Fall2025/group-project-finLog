@@ -21,6 +21,6 @@ services:
       - '3000:3000'
     volumes:
       - ./:/repository
-    command: 'npm start' 
+    command: 'npm start' #replace start with testandrun to run tests 
 volumes:
   group-project:
