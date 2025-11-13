@@ -52,10 +52,10 @@ describe('Additional Server endpoints', () => {
           });
     });
 
-    it('Successful Login', (done) => {
+    it('Successful Registration', (done) => {
       chai
         .request(server)
-        .post('/login')
+        .post('/registration')
         .send({ username: str, password: 'password'})
         .end((err, res) => {
           expect(res).to.have.status(200);
