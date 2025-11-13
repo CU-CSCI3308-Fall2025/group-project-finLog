@@ -52,17 +52,16 @@ describe('Additional Server endpoints', () => {
           });
     });
 
-    it('Successful Registration', done => {
-      const username = randomUsername();
-      chai.request(app)
-        .post('/register')
-        .type('form')
-        .send({ username: username, password: 'password123' })
+    it('Successful Login', (done) => {
+      chai
+        .request(server)
+        .post('/login')
+        .send({ username: str, password: 'password'})
         .end((err, res) => {
-          if (err) return done(err);
           expect(res).to.have.status(200);
-          expect(res.body).to.have.property('status', 'success');
-          expect(res.body).to.have.property('message').that.includes('Registration');
+          expect(res.body.status).to.equal('success');
+          expect(res.body).to.have.property('user');
+          expect(res.body.user.username).to.equal(randomUsername);
           done();
         });
     });
