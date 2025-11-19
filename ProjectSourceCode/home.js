@@ -27,7 +27,7 @@ async function loadFeed() {
         <img src="${post.image_path}" class="card-img-top" alt="Post Image">
 
         <div class="card-body">
-          <h5 class="card-title">@${post.username}</h5>
+          <h5 class="card-title">${post.username}</h5>
           <p class="card-text">${post.caption || ""}</p>
           <p class="text-muted">
             ${new Date(post.date_created).toLocaleDateString()}
@@ -46,7 +46,6 @@ async function loadFeed() {
     console.error("Feed load error:", err);
   }
 }
-
 // Load feed on startup
 window.addEventListener("DOMContentLoaded", loadFeed);
 
