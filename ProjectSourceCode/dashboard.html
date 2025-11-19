@@ -68,12 +68,12 @@
           <div class="mb-3">
             <div class="bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width:80px;height:80px;"><span class="h4 mb-0">FM</span></div>
           </div>
-          <h5>FishMaster123</h5>
-          <p class="text-muted">Fishing since 2020</p>
+          <h5 id="profile-username">FishMaster123</h5>
+          <p class="text-muted" id="profile-member-since">Fishing since 2020</p>
           <hr>
           <div class="row text-center">
-            <div class="col-6"><h6>47</h6><small class="text-muted">Catches</small></div>
-            <div class="col-6"><h6>12</h6><small class="text-muted">Species</small></div>
+            <div class="col-6"><h6 id="profile-catches">47</h6><small class="text-muted">Catches</small></div>
+            <div class="col-6"><h6 id="profile-species">12</h6><small class="text-muted">Species</small></div>
           </div>
         </div>
       </div>
@@ -126,7 +126,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function loadUserProfile() {
-  document.querySelector('.card-body h5').textContent = currentUser.username;
+  // Update profile username and initials
+  document.getElementById('profile-username').textContent = currentUser.username;
   document.querySelector('.bg-secondary.text-white.rounded-circle span').textContent = currentUser.username.substring(0, 2).toUpperCase();
 
   try {
@@ -137,16 +138,18 @@ async function loadUserProfile() {
       const stats = result.data;
       const today = new Date();
       const creationDate = new Date(stats.user_creation_date);
+      
       // Stats row
       document.getElementById('stat-total').textContent = stats.total_catches || 0;
       document.getElementById('stat-species').textContent = stats.species_count || 0;
       document.getElementById('stat-largest').textContent = stats.largest_catch || 0;
 
-      // Profile card
-      document.querySelector('.card-body p.text-muted').textContent = `Fishing since ${creationDate.getFullYear()}`;
-      const profileStats = document.querySelector('.card-body .row.text-center');
-      profileStats.children[0].querySelector('h6').textContent = stats.total_catches || 0;
-      profileStats.children[1].querySelector('h6').textContent = stats.species_count || 0;
+      // Profile card - member since date
+      document.getElementById('profile-member-since').textContent = `Fishing since ${creationDate.getFullYear()}`;
+      
+      // Profile card - stats
+      document.getElementById('profile-catches').textContent = stats.total_catches || 0;
+      document.getElementById('profile-species').textContent = stats.species_count || 0;
     }
   } catch (error) {
     console.error('Error loading user stats:', error);
