@@ -56,71 +56,12 @@
                     <a href="upload.html" class="btn btn-secondary btn-upload">Upload</a>
                   </div>
             </div>
-            
-            <div class="card mb-4">
-            <img src="../assets/fishExample.png" class="card-img-top" alt="Post image">
-            <div class="card-body">
-                <p class="card-text">Seemed like a decent reason to post after 18 years</p>
-                <hr>
-                <h6>Comments</h6>
-                <div class="comments" style="max-height: 200px; overflow-y: auto;">
-                <p><strong>brody_reece:</strong> Gonna miss you 😘</p>
-                <p><strong>nathan.g2468:</strong> Yo is that huzzson?</p>
-                <p><strong>dylanj2926:</strong> Ultimate adversity overcomer</p>
-                </div>
-                <form class="mt-2">
-                <input type="text" class="form-control" placeholder="Add a comment...">
-                </form>
-            </div>
-            </div>
-    
-            <div class="card mb-4">
-            <img src="../assets/fishExample2.png" class="card-img-top" alt="Post image">
-            <div class="card-body">
-                <p class="card-text">Another description for a different post.</p>
-                <hr>
-                <h6>Comments</h6>
-                <div class="comments" style="max-height: 200px; overflow-y: auto;">
-                <p><strong>user123:</strong> Love this!</p>
-                <p><strong>coolguy:</strong> Amazing photo 🔥</p>
-                </div>
-                <form class="mt-2">
-                <input type="text" class="form-control" placeholder="Add a comment...">
-                </form>
-            </div>
-            </div>
+          
   
       </div>
     </div>
   </div>
   
-
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    const postFeed = document.getElementById("postFeed");
-
-    const posts = JSON.parse(localStorage.getItem("posts")) || [];
- 
-    posts.forEach((post) => {
-      const postCard = `
-        <div class="card mb-4">
-          <img src="${post.image}" class="card-img-top" alt="Post image">
-          <div class="card-body">
-            <p class="card-text">${post.details}</p>
-            <hr>
-            <h6>Comments</h6>
-            <div class="comments" style="max-height: 200px; overflow-y: auto;">
-              <p><strong>user:</strong> Add your first comment!</p>
-            </div>
-            <form class="mt-2">
-              <input type="text" class="form-control" placeholder="Add a comment...">
-            </form>
-          </div>
-        </div>`;
-      postFeed.insertAdjacentHTML("beforeend", postCard);
-    });
-  </script>
   <script src="auth.js"></script>
   <script>
     // Check if user is logged in and update navbar
