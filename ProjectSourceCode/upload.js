@@ -17,7 +17,8 @@
         
         // Optionally reset the form
         form.reset();
-        
+        window.location.href = "dashboard.html";//send user back to dash
+
         // Optionally redirect to dashboard or feed
         // window.location.href = '/dashboard.html';
       } else {
