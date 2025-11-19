@@ -54,4 +54,20 @@ NEXT WEEK:
 - ADD STUFF IN THE PROJECT BOARD!!! 
 - ts 
 
+Nov 13
+Since last time: 
+- home page
+- uploads are live now
+- stats are live now
+
+NEXT WEEK: 
+- we must finish! 
+- all functionalities should be done
+- then use the next two weeks to polish
+- Gemini API calls
+- Comments
+- Live feed
+- Search functionality 
+- metadata from the images (MAYBE) 
+
 

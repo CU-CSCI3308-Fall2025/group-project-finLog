@@ -43,9 +43,6 @@
       <div class="col-6 col-md-3">
         <div class="card text-center"><div class="card-body"><h3 id="stat-largest">23.5</h3><div class="text-muted">Largest (lbs)</div></div></div>
       </div>
-      <div class="col-6 col-md-3">
-        <div class="card text-center"><div class="card-body"><h3 id="stat-days">8</h3><div class="text-muted">Days Fished</div></div></div>
-      </div>
     </div>
   </section>
 
@@ -140,14 +137,10 @@ async function loadUserProfile() {
       const stats = result.data;
       const today = new Date();
       const creationDate = new Date(stats.user_creation_date);
-      const diffTime = Math.abs(today - creationDate);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
       // Stats row
       document.getElementById('stat-total').textContent = stats.total_catches || 0;
       document.getElementById('stat-species').textContent = stats.species_count || 0;
       document.getElementById('stat-largest').textContent = stats.largest_catch || 0;
-      document.getElementById('stat-days').textContent = diffDays;
 
       // Profile card
       document.querySelector('.card-body p.text-muted').textContent = `Fishing since ${creationDate.getFullYear()}`;

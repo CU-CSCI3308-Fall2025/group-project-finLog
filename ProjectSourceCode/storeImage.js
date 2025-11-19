@@ -72,6 +72,9 @@ const storeImage = async (req, res, db) => {
     const userId = req.session.user.user_id;
     // Get caption from form data, default to empty string if not provided
     const caption = req.body.caption || '';
+    // Get fish weight and species from form data
+    const fishWeight = req.body.fish_weight || null;
+    const fishSpecies = req.body.fish_species || null;
     // Get GPS coordinates from form data (optional fields)
     const xCoord = req.body.x_coord || null;
     const yCoord = req.body.y_coord || null;
@@ -81,12 +84,12 @@ const storeImage = async (req, res, db) => {
     // ----------------------
     // Insert a new post record and get the auto-generated post_id
     const insertPostQuery = `
-      INSERT INTO posts (user_id, caption, date_created)
-      VALUES ($1, $2, CURRENT_TIMESTAMP)
+      INSERT INTO posts (user_id, caption, fish_weight, fish_species, date_created)
+      VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
       RETURNING post_id;
     `;
     
-    const result = await db.one(insertPostQuery, [userId, caption]);
+    const result = await db.one(insertPostQuery, [userId, caption, fishWeight, fishSpecies]);
     const postId = result.post_id; // This is the unique ID for this post
 
     // ----------------------
