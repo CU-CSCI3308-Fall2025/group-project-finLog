@@ -552,9 +552,6 @@ app.get('/api/posts', async (req, res) => {
   }
 });
 
-// *****************************************************
-// <!-- Section 4 : Start Server -->
-// *****************************************************
 
 module.exports = app.listen(3000, () => {
   console.log('Server is listening on port 3000');
