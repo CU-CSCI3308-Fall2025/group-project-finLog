@@ -15,16 +15,42 @@ async function loadFeed() {
     const response = await fetch("/api/posts");
     const result = await response.json();
 
-    if (result.status !== "success") return;
+    if (result.status !== "success") {
+      postFeed.innerHTML = '<div class="alert alert-warning">Unable to load posts. Please try again later.</div>';
+      return;
+    }
 
     postFeed.innerHTML = "";
+    
+    // Add the search type buttons at the top
+    const searchTypeDiv = document.createElement("div");
+    searchTypeDiv.className = "pt-3 pb-2";
+    searchTypeDiv.innerHTML = `
+      <div class="search-type">
+        <button class="btn btn-outline-secondary rounded-pill btn-sm active">For you</button>
+        <button class="btn btn-outline-secondary rounded-pill btn-sm">Recent</button>
+        <button class="btn btn-outline-secondary rounded-pill btn-sm">Nearby</button>
+        <button class="btn btn-outline-secondary rounded-pill btn-sm">Trending</button>
+        <button class="btn btn-outline-secondary rounded-pill btn-sm">Size</button>
+        <a href="upload.html" class="btn btn-secondary btn-upload">Upload</a>
+      </div>
+    `;
+    postFeed.appendChild(searchTypeDiv);
+
+    if (result.data.length === 0) {
+      const emptyMessage = document.createElement("div");
+      emptyMessage.className = "text-center py-5 text-muted";
+      emptyMessage.innerHTML = '<p>No posts yet. Be the first to share a catch!</p>';
+      postFeed.appendChild(emptyMessage);
+      return;
+    }
 
     result.data.forEach(post => {
       const card = document.createElement("div");
       card.className = "card mb-4";
 
       card.innerHTML = `
-        <img src="${post.image_path}" class="card-img-top" alt="Post Image">
+        <img src="${post.image_path}" class="card-img-top" alt="Post Image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E'">
 
         <div class="card-body">
           <h5 class="card-title">${post.username}</h5>
@@ -65,6 +91,7 @@ async function loadFeed() {
 
   } catch (err) {
     console.error("Feed load error:", err);
+    postFeed.innerHTML = '<div class="alert alert-danger">Error loading posts. Please check your connection and try again.</div>';
   }
 }
 
