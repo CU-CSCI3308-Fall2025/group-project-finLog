@@ -14,20 +14,40 @@
 
   <header class="p-2 bg-secondary text-white">
     <div class="d-flex justify-content-between align-items-center">
-      <button class="btn btn-outline-light">≡</button>
-      <div class="text-center">
-        <h1 class="m-0">FINLOG</h1>
-        <div class="mt-1">
-          <a href="home.html" class="btn btn-outline-light btn-sm me-2">Home</a>
-          <a href="finlog.html" class="btn btn-outline-light btn-sm me-2">Fish Log</a>
-          <a href="map_page.html" class="btn btn-outline-light btn-sm me-2">Map</a>
-          <a href="upload.html" class="btn btn-outline-light btn-sm me-2">Upload</a>
-          <a href="dashboard.html" class="btn btn-outline-light btn-sm">Dashboard</a>
-        </div>
-      </div>
-      <a href="login.html" class="btn btn-outline-light">Login</a>
+        <div class="header-left">
+            <h1 class="m-0">FINLOG</h1>
+          </div>
+        
+          <div class="header-center flex-grow-1 d-flex justify-content-center">
+            <input 
+              type="search"
+              class="form-control search-bar"
+              placeholder="Search for a Place, Space or type of Fish!"
+            >
+          </div>
+        
+          <div class="header-right">
+            <a href="login.html" class="btn btn-outline-light">Login</a>
+          </div>
     </div>
   </header>
+  
+  <div class="container-fluid py-1">
+    <div class="row min-vh-100">
+        <div class="col-md-3 d-none d-md-block bg-light">
+        <div class="sticky-top py-4">
+            <h5 class="mb-4">FinLog</h5>
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link" href="home.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="map_page.html">Map Page</a></li>
+                <li class="nav-item"><a class="nav-link" href="upload.html">Upload</a></li>
+            </ul>
+        </div>
+    </div>
+          
+          
+    <div class="col-md-9">
   
   <main class="container my-3">
     <h2 class="mb-2">Fishing Locations Map</h2>
@@ -72,6 +92,10 @@
       </div>
     </div>
   </main>
+
+    </div>
+  </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
