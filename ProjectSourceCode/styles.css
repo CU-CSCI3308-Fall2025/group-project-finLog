@@ -1,9 +1,9 @@
 /* ==================== Modern Clean Design ==================== */
 :root {
-    --primary-teal: #1abc9c;
-    --primary-teal-dark: #16a085;
-    --primary-teal-light: #48c9b0;
-    --accent-teal: #20c997;
+    --primary-teal: #667eea;
+    --primary-teal-dark: #5568d3;
+    --primary-teal-light: #8b9cf9;
+    --accent-teal: #764ba2;
     --text-dark: #2d3436;
     --text-gray: #636e72;
     --text-light: #b2bec3;
@@ -11,11 +11,13 @@
     --bg-gray: #f8f9fa;
     --bg-light: #fafbfc;
     --border-light: #e8ecef;
-    --border-teal: #1abc9c;
+    --border-teal: #667eea;
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
     --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
-    --shadow-teal: 0 4px 12px rgba(26, 188, 156, 0.15);
+    --shadow-teal: 0 4px 12px rgba(102, 126, 234, 0.25);
+    --gradient-blue-pink: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-hover: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
 }
 
 * {
@@ -62,7 +64,7 @@ header .btn {
 }
 
 header .btn:hover {
-    background: var(--primary-teal);
+    background: var(--gradient-blue-pink);
     border-color: var(--primary-teal);
     color: var(--bg-white);
     transform: translateY(-2px);
@@ -166,15 +168,16 @@ textarea.form-control {
 }
 
 .btn-secondary {
-    background: var(--primary-teal);
+    background: var(--gradient-blue-pink);
     color: white;
     box-shadow: var(--shadow-sm);
 }
 
 .btn-secondary:hover {
-    background: var(--primary-teal-dark);
+    background: var(--gradient-hover);
     transform: translateY(-2px);
     box-shadow: var(--shadow-teal);
+    color: white;
 }
 
 .btn-outline-secondary {
@@ -287,7 +290,10 @@ textarea.form-control {
 
 /* ==================== Stats Cards ==================== */
 .card h3 {
-    color: var(--primary-teal);
+    background: var(--gradient-blue-pink);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     font-weight: 700;
     margin: 0;
     font-size: 2rem;
@@ -301,7 +307,7 @@ textarea.form-control {
 /* ==================== Profile Styles ==================== */
 .rounded-circle {
     border: 3px solid var(--primary-teal);
-    background: var(--primary-teal);
+    background: var(--gradient-blue-pink);
 }
 
 /* ==================== Badges ==================== */
@@ -313,7 +319,7 @@ textarea.form-control {
 }
 
 .badge.bg-primary {
-    background-color: var(--primary-teal) !important;
+    background: var(--gradient-blue-pink) !important;
 }
 
 .badge.bg-success {
@@ -483,7 +489,7 @@ a {
 }
 
 a:hover {
-    color: var(--primary-teal-dark);
+    color: var(--accent-teal);
 }
 
 /* ==================== Form Validation ==================== */
@@ -535,7 +541,7 @@ th {
 
 .search-bar:focus {
     border-color: var(--primary-teal);
-    box-shadow: 0 0 0 4px rgba(26, 188, 156, 0.1);
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
 }
 
 .search-type {
@@ -558,7 +564,7 @@ th {
 
 .search-type .btn:not(.btn-upload):hover {
     border-color: var(--primary-teal);
-    color: var(--primary-teal);
+    color: var(--accent-teal);
 }
 
 .search-type .btn.active {
@@ -575,15 +581,64 @@ th {
     border-radius: 8px;
     text-decoration: none;
     color: white;
-    background: var(--primary-teal) !important;
+    background: var(--gradient-blue-pink) !important;
     border: none !important;
 }
 
 .search-type .btn-upload:hover {
-    background: var(--primary-teal-dark) !important;
+    background: var(--gradient-hover) !important;
     transform: translateY(-2px);
     box-shadow: var(--shadow-teal);
 }
 
 /* ==================== Additional Button Variants ==================== */
 .btn-success {\n    background: #27ae60;\n    color: white;\n    border: none;\n}\n\n.btn-success:hover {\n    background: #229954;\n    transform: translateY(-2px);\n    color: white;\n}\n\n.btn-warning {\n    background: #f39c12;\n    color: white;\n    border: none;\n}\n\n.btn-warning:hover {\n    background: #e67e22;\n    transform: translateY(-2px);\n    color: white;\n}
+
+/* ==================== Sidebar Width Adjustments ==================== */
+@media (min-width: 768px) {
+    .col-md-3 {
+        flex: 0 0 auto;
+        width: 200px !important;
+        max-width: 200px;
+    }
+    
+    .col-md-9 {
+        flex: 0 0 auto;
+        width: calc(100% - 200px) !important;
+    }
+    
+    .col-md-5 {
+        flex: 0 0 auto;
+        width: calc(100% - 200px) !important;
+    }
+}
+
+.sticky-top {
+    padding: 1.5rem 1rem !important;
+}
+
+.sticky-top h5 {
+    font-size: 0.85rem !important;
+    margin-bottom: 1rem !important;
+    letter-spacing: 0.5px;
+}
+
+/* Override nav link sizing */
+.nav.flex-column {
+    gap: 0.35rem !important;
+}
+
+.nav.flex-column .nav-link {
+    padding: 0.55rem 0.75rem !important;
+    font-size: 0.85rem !important;
+    border-radius: 6px !important;
+}
+
+.nav.flex-column .nav-link:hover {
+    background: rgba(102, 126, 234, 0.08) !important;
+    transform: translateX(2px) !important;
+}
+
+.nav.flex-column .nav-link.active {
+    box-shadow: 0 2px 4px rgba(26, 188, 156, 0.2) !important;
+}
