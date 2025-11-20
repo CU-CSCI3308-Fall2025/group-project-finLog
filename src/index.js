@@ -216,6 +216,127 @@ app.get('/api/locations', async (req, res) => {
   }
 });
 
+//comments
+
+app.get('/api/posts/:postId/comments', async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    const query = `
+      SELECT 
+        c.comment_id,
+        c.comment_text,
+        u.username,
+        u.user_id
+      FROM comments c
+      JOIN users u ON c.user_id = u.user_id
+      WHERE c.post_id = $1
+      ORDER BY c.date_created ASC
+    `;
+
+    const result = await db.any(query, [postId]);
+
+    res.json({
+      status: "success",
+      data: result
+    });
+
+  } catch (error) {
+    console.error("Error fetching comments:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to fetch comments"
+    });
+  }
+});
+
+// POST /api/posts/:postId/comments - Create a new comment
+app.post('/api/posts/:postId/comments', async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { comment_text } = req.body;
+    
+    // FIXED: Use req.session.user.user_id (matching your auth pattern)
+    if (!req.session.user) {
+      return res.status(401).json({
+        status: "error",
+        message: "You must be logged in to comment"
+      });
+    }
+
+    const userId = req.session.user.user_id;
+
+    if (!comment_text || comment_text.trim().length === 0) {
+      return res.status(400).json({
+        status: "error",
+        message: "Comment text is required"
+      });
+    }
+
+    const query = `
+      INSERT INTO comments (user_id, post_id, comment_text, date_created)
+      VALUES ($1, $2, $3, NOW())
+      RETURNING comment_id, comment_text, date_created
+    `;
+
+    const result = await db.one(query, [userId, postId, comment_text.trim()]);
+
+    res.json({
+      status: "success",
+      data: result,
+      message: "Comment posted successfully"
+    });
+
+  } catch (error) {
+    console.error("Error posting comment:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to post comment"
+    });
+  }
+});
+// DELETE /api/comments/:commentId - Delete a comment
+app.delete('/api/comments/:commentId', async (req, res) => {
+  try {
+    const { commentId } = req.params;
+  
+    if (!req.session.user) {
+      return res.status(401).json({
+        status: "error",
+        message: "Unauthorized"
+      });
+    }
+
+    const userId = req.session.user.user_id;
+    const query = `
+      DELETE FROM comments 
+      WHERE comment_id = $1 AND user_id = $2
+      RETURNING comment_id
+    `;
+
+    const result = await db.oneOrNone(query, [commentId, userId]);
+
+    if (!result) {
+      return res.status(403).json({
+        status: "error",
+        message: "Cannot delete this comment"
+      });
+    }
+
+    res.json({
+      status: "success",
+      message: "Comment deleted successfully"
+    });
+
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to delete comment"
+    });
+  }
+});
+
 // Check if user is authenticated
 app.get('/api/auth/check', async (req, res) => {
   if (req.session.user) {
