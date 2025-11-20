@@ -65,9 +65,14 @@ function renderPosts(posts) {
   const existingCards = postFeed.querySelectorAll('.card');
   existingCards.forEach(card => card.remove());
   
-  // Remove empty message if exists
-  const emptyMsg = postFeed.querySelector('.text-center.py-5.text-muted');
-  if (emptyMsg) emptyMsg.remove();
+  // Remove empty/loading messages if they exist
+  const messages = postFeed.querySelectorAll('.text-center.py-5');
+  messages.forEach(msg => {
+    // Don't remove the filter buttons container
+    if (!msg.closest('.pt-3.pb-2')) {
+      msg.remove();
+    }
+  });
 
   if (posts.length === 0) {
     const emptyMessage = document.createElement("div");
@@ -149,32 +154,33 @@ async function loadFeed() {
     const result = await response.json();
 
     if (result.status !== "success") {
-      postFeed.innerHTML = '<div class="alert alert-warning">Unable to load posts. Please try again later.</div>';
+      // Clear only posts, keep filter buttons
+      const existingCards = postFeed.querySelectorAll('.card');
+      existingCards.forEach(card => card.remove());
+      const emptyMsg = postFeed.querySelector('.text-center.py-5');
+      if (emptyMsg) emptyMsg.remove();
+      
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-warning';
+      alertDiv.textContent = 'Unable to load posts. Please try again later.';
+      postFeed.appendChild(alertDiv);
       return;
     }
 
-    postFeed.innerHTML = "";
+    // Clear existing posts and messages, but keep filter buttons
+    const existingCards = postFeed.querySelectorAll('.card');
+    existingCards.forEach(card => card.remove());
     
-    // Add the search type buttons at the top
-    const searchTypeDiv = document.createElement("div");
-    searchTypeDiv.className = "pt-3 pb-2";
-    searchTypeDiv.innerHTML = `
-      <div class="search-type">
-        <button class="btn btn-outline-secondary rounded-pill btn-sm active">For you</button>
-        <button class="btn btn-outline-secondary rounded-pill btn-sm">Recent</button>
-        <button class="btn btn-outline-secondary rounded-pill btn-sm">Nearby</button>
-        <button class="btn btn-outline-secondary rounded-pill btn-sm">Trending</button>
-        <button class="btn btn-outline-secondary rounded-pill btn-sm">Size</button>
-        <a href="upload.html" class="btn btn-secondary btn-upload">Upload</a>
-      </div>
-    `;
-    postFeed.appendChild(searchTypeDiv);
+    // Remove loading spinner and empty messages
+    const messages = postFeed.querySelectorAll('.text-center.py-5');
+    messages.forEach(msg => msg.remove());
 
     if (result.data.length === 0) {
       const emptyMessage = document.createElement("div");
       emptyMessage.className = "text-center py-5 text-muted";
       emptyMessage.innerHTML = '<p>No posts yet. Be the first to share a catch!</p>';
       postFeed.appendChild(emptyMessage);
+      allPosts = []; // Set to empty array
       return;
     }
 
@@ -184,7 +190,16 @@ async function loadFeed() {
 
   } catch (err) {
     console.error("Feed load error:", err);
-    postFeed.innerHTML = '<div class="alert alert-danger">Error loading posts. Please check your connection and try again.</div>';
+    // Clear only posts, keep filter buttons
+    const existingCards = postFeed.querySelectorAll('.card');
+    existingCards.forEach(card => card.remove());
+    const messages = postFeed.querySelectorAll('.text-center.py-5, .alert');
+    messages.forEach(msg => msg.remove());
+    
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-danger';
+    alertDiv.textContent = 'Error loading posts. Please check your connection and try again.';
+    postFeed.appendChild(alertDiv);
   }
 }
 
