@@ -70,4 +70,19 @@ NEXT WEEK:
 - Search functionality 
 - metadata from the images (MAYBE) 
 
+Nov 20
+Since last week: 
+- new ui 
+- comments are live
+- better posts
+- have to be logged in 
+
+NEXT WEEK: 
+- we dont need to change the project structure
+- fix the comments timestamping 
+- add likes functionality 
+- GEMINI API CALLS!!
+- list of species maybe 
+- fix up everything
+
 
