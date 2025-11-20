@@ -43,6 +43,34 @@ db.connect()
     console.log('ERROR:', error.message || error);
   });
 
+
+// 🔽 ADD THIS BLOCK HERE 🔽
+async function runMigrations() {
+  try {
+    const createSql = fs.readFileSync(
+      path.join(__dirname, 'init_data', '00_create.sql'),
+      'utf8'
+    );
+
+    const insertSql = fs.readFileSync(
+      path.join(__dirname, 'init_data', '01_insert.sql'),
+      'utf8'
+    );
+
+    await db.none(createSql);
+
+    if (insertSql.trim().length > 0) {
+      await db.none(insertSql);
+    }
+
+    console.log('Database initialized or already up to date.');
+  } catch (err) {
+    console.error('Migration error (often safe after first run):', err.message);
+  }
+}
+
+runMigrations();
+
 // Session configuration
 app.use(
   session({
