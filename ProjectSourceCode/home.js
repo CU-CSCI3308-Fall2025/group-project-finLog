@@ -84,7 +84,7 @@ function renderPosts(posts) {
 
   posts.forEach(post => {
     const card = document.createElement("div");
-    card.className = "card mb-4";
+    card.className = "card mb-3";
 
     // Add fish info if available
     let fishInfo = '';
@@ -102,41 +102,48 @@ function renderPosts(posts) {
     // Add location badge if available
     let locationBadge = '';
     if (post.x_coord && post.y_coord) {
-      locationBadge = `<span class="badge bg-secondary">📍 Located</span>`;
+      locationBadge = `<span class="badge bg-secondary ms-2">📍 Located</span>`;
     }
 
     card.innerHTML = `
-      <img src="${post.image_path}" class="card-img-top" alt="Post Image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E'">
-
-      <div class="card-body">
-        <h5 class="card-title">${post.username} ${locationBadge}</h5>
-        ${fishInfo}
-        <p class="card-text">${post.caption || ""}</p>
-        <p class="text-muted">
-          ${new Date(post.date_created).toLocaleDateString()}
-        </p>
-
-        <hr>
-
-        <h6>Comments</h6>
-        <div id="comments-${post.post_id}" class="comments-section mb-3">
-          <div class="text-muted">Loading comments...</div>
+      <div class="row g-0">
+        <div class="col-md-8">
+          <img src="${post.image_path}" class="img-fluid rounded-start post-image" alt="Post Image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E'">
         </div>
+        <div class="col-md-4">
+          <div class="card-body">
+            <h6 class="card-title mb-2">
+              <strong>${post.username}</strong>${locationBadge}
+            </h6>
+            ${fishInfo}
+            <p class="card-text mb-2">${post.caption || ""}</p>
+            <p class="text-muted small mb-3">
+              ${new Date(post.date_created).toLocaleDateString()}
+            </p>
 
-        <!-- Comment input form -->
-        <div class="comment-form">
-          <textarea 
-            id="comment-input-${post.post_id}" 
-            class="form-control mb-2" 
-            rows="2" 
-            placeholder="Write a comment..."
-          ></textarea>
-          <button 
-            class="btn btn-primary btn-sm" 
-            onclick="postComment(${post.post_id})"
-          >
-            Post Comment
-          </button>
+            <hr class="my-2">
+
+            <h6 class="mb-2">Comments</h6>
+            <div id="comments-${post.post_id}" class="comments-section mb-2" style="max-height: 150px; overflow-y: auto;">
+              <div class="text-muted small">Loading comments...</div>
+            </div>
+
+            <!-- Comment input form -->
+            <div class="comment-form">
+              <textarea 
+                id="comment-input-${post.post_id}" 
+                class="form-control form-control-sm mb-2" 
+                rows="2" 
+                placeholder="Write a comment..."
+              ></textarea>
+              <button 
+                class="btn btn-primary btn-sm" 
+                onclick="postComment(${post.post_id})"
+              >
+                Post Comment
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     `;

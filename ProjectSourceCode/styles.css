@@ -642,3 +642,125 @@ th {
 .nav.flex-column .nav-link.active {
     box-shadow: 0 2px 4px rgba(26, 188, 156, 0.2) !important;
 }
+
+/* ==================== Home Feed Post Layout ==================== */
+#postFeed .card {
+    margin-bottom: 2rem;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+#postFeed .row.g-0 {
+    min-height: 600px;
+    height: 600px;
+}
+
+/* Image column - takes up majority of space */
+#postFeed .col-md-8 {
+    display: flex;
+    align-items: stretch;
+    height: 600px;
+}
+
+#postFeed .post-image {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 0;
+}
+
+/* Comments column - narrow right side */
+#postFeed .col-md-4 {
+    display: flex;
+    flex-direction: column;
+    height: 600px;
+    background: var(--bg-white);
+}
+
+#postFeed .card-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+#postFeed .card-title {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+#postFeed .card-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+
+#postFeed .badge {
+    font-size: 0.75rem;
+}
+
+#postFeed .comments-section {
+    font-size: 0.85rem;
+    overflow-y: auto;
+    flex: 1;
+    margin-bottom: 1rem;
+    padding-right: 0.5rem;
+}
+
+#postFeed .comment {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    background: var(--bg-light);
+    border-radius: 8px;
+}
+
+#postFeed .comment strong {
+    font-size: 0.9rem;
+    color: var(--text-dark);
+}
+
+#postFeed h6 {
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+#postFeed .comment-form {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-light);
+}
+
+#postFeed .comment-form textarea {
+    font-size: 0.85rem;
+    resize: none;
+}
+
+#postFeed .comment-form .btn {
+    font-size: 0.85rem;
+    padding: 0.4rem 1rem;
+}
+
+@media (max-width: 768px) {
+    #postFeed .row.g-0 {
+        min-height: auto;
+        height: auto;
+        flex-direction: column;
+    }
+    
+    #postFeed .col-md-8,
+    #postFeed .col-md-4 {
+        height: auto;
+    }
+    
+    #postFeed .post-image {
+        height: 400px;
+    }
+    
+    #postFeed .card-body {
+        height: auto;
+    }
+}
