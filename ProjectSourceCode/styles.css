@@ -3,7 +3,7 @@
     --primary-teal: #667eea;
     --primary-teal-dark: #5568d3;
     --primary-teal-light: #8b9cf9;
-    --accent-teal: #764ba2;
+    --accent-teal: #f093fb;
     --text-dark: #2d3436;
     --text-gray: #636e72;
     --text-light: #b2bec3;
@@ -16,8 +16,8 @@
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
     --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
     --shadow-teal: 0 4px 12px rgba(102, 126, 234, 0.25);
-    --gradient-blue-pink: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --gradient-hover: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+    --gradient-blue-pink: linear-gradient(135deg, #667eea 0%, #f093fb 100%);
+    --gradient-hover: linear-gradient(135deg, #5568d3 0%, #e06cf5 100%);
 }
 
 * {
