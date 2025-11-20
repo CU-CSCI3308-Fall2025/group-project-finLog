@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS posts (
     fish_weight DECIMAL(10, 2),
     fish_species VARCHAR(255),
     status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'flagged', 'deleted')),
+    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
@@ -58,4 +59,3 @@ CREATE TABLE IF NOT EXISTS location (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (post_id) REFERENCES posts(post_id) ON DELETE CASCADE
 );
-
