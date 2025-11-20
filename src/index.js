@@ -632,9 +632,14 @@ app.get('/api/posts', async (req, res) => {
         p.post_id,
         p.caption,
         p.date_created,
-        u.username
+        p.fish_weight,
+        p.fish_species,
+        u.username,
+        l.x_coord,
+        l.y_coord
       FROM posts p
       JOIN users u ON p.user_id = u.user_id
+      LEFT JOIN location l ON p.post_id = l.post_id
       ORDER BY p.date_created DESC
       LIMIT 50;
     `;
