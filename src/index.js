@@ -213,6 +213,75 @@ app.post('/upload', upload.single('image'), async (req, res) => {
   await storeImage(req, res, db);
 });
 
+// New endpoint: Analyze image before upload
+app.post('/api/analyze-image', upload.single('image'), async (req, res) => {
+  const { analyzeFishWithAI } = require('../ProjectSourceCode/ai_upload');
+  const { parseAIResponse, formatAnalysisForDisplay } = require('../ProjectSourceCode/ai_parser');
+  const fs = require('fs');
+  
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'No image file provided'
+      });
+    }
+    
+    // Analyze the image
+    const rawAIResponse = await analyzeFishWithAI(req.file.path);
+    
+    if (!rawAIResponse) {
+      // Clean up temp file
+      fs.unlinkSync(req.file.path);
+      return res.status(500).json({
+        status: 'error',
+        message: 'AI analysis failed. Please try again.'
+      });
+    }
+    
+    // Parse the response
+    const parsedData = parseAIResponse(rawAIResponse);
+    
+    // Check if it's a fish
+    if (parsedData.isFish === false) {
+      // Not a fish - clean up and reject
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({
+        status: 'not_fish',
+        message: parsedData.reason || 'This image does not appear to contain a fish. Please upload an image of a fish.',
+        data: parsedData
+      });
+    }
+    
+    // It's a fish - format for display
+    const formattedHTML = formatAnalysisForDisplay(parsedData);
+    
+    // Clean up the temp file (we'll upload again with the form)
+    fs.unlinkSync(req.file.path);
+    
+    res.status(200).json({
+      status: 'success',
+      message: 'Fish identified successfully',
+      data: parsedData,
+      aiAnalysisHTML: formattedHTML
+    });
+    
+  } catch (error) {
+    console.error('Image analysis error:', error);
+    
+    // Clean up temp file if it exists
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to analyze image',
+      error: error.message
+    });
+  }
+});
+
 // Get all locations with post data
 app.get('/api/locations', async (req, res) => {
   try {

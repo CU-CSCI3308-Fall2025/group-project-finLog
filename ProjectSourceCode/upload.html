@@ -55,6 +55,30 @@
             <label for="imageInput" class="form-label">Upload Image</label>
             <input type="file" class="form-control" id="imageInput" name="image" accept="image/*" required>
         </div>
+        
+        <button type="button" id="analyzeButton" class="btn btn-info mb-3" disabled>
+            <span id="analyzeButtonText">Select an image first</span>
+        </button>
+        
+        <div id="aiResultsContainer" class="mb-3" style="display: none;">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">AI Analysis Results</h5>
+                    <div id="aiResults" class="mt-2">
+                        <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Analyzing...</span>
+                        </div>
+                        <span class="ms-2">Analyzing image...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <label for="fishSpeciesInput" class="form-label">Fish Species <span class="text-muted">(Auto-filled by AI)</span></label>
+            <input type="text" class="form-control" id="fishSpeciesInput" name="fish_species" placeholder="Run AI analysis first" readonly required>
+        </div>
+        
         <div class="mb-3">
             <label for="captionInput" class="form-label">Caption</label>
             <textarea class="form-control" id="captionInput" name="caption" rows="3" placeholder="Write a caption for your post..."></textarea>
@@ -63,10 +87,7 @@
             <label for="fishWeightInput" class="form-label">Fish Weight (lbs)</label>
             <input type="number" step="any" class="form-control" id="fishWeightInput" name="fish_weight" placeholder="e.g., 5.5">
         </div>
-        <div class="mb-3">
-            <label for="fishSpeciesInput" class="form-label">Fish Species</label>
-            <input type="text" class="form-control" id="fishSpeciesInput" name="fish_species" placeholder="e.g., Rainbow Trout">
-        </div>
+        
         <div class="mb-3">
             <label for="xCoordInput" class="form-label">X Coordinate (Optional)</label>
             <input type="number" step="any" class="form-control" id="xCoordInput" name="x_coord" placeholder="e.g., 40.7128">
@@ -75,7 +96,10 @@
             <label for="yCoordInput" class="form-label">Y Coordinate (Optional)</label>
             <input type="number" step="any" class="form-control" id="yCoordInput" name="y_coord" placeholder="e.g., -74.0060">
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        
+        <button type="submit" id="submitButton" class="btn btn-primary" disabled>
+            <span id="submitButtonText">Analyze image first</span>
+        </button>
     </form>
   </main>
 

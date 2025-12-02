@@ -2,6 +2,8 @@
 const multer = require('multer'); // Middleware for handling file uploads
 const path = require('path');     // Module for handling file paths
 const fs = require('fs');         // File system module for file operations
+const { analyzeFishWithAI } = require('./ai_upload'); // AI analysis function
+const { parseAIResponse, formatAnalysisForDisplay } = require('./ai_parser'); // AI response parser
 
 // Create user_images directory if it doesn't exist
 // This ensures we have a place to store uploaded images
@@ -118,19 +120,40 @@ const storeImage = async (req, res, db) => {
     }
 
     // ----------------------
-    // Step 6: Send Success Response
+    // Step 6: AI Analysis Data (Already Done)
+    // ----------------------
+    // The AI analysis was already performed before upload
+    // Get the data from the form if it was sent
+    let aiAnalysisData = null;
+    if (req.body.aiAnalysisData) {
+      try {
+        aiAnalysisData = JSON.parse(req.body.aiAnalysisData);
+      } catch (e) {
+        console.error('Failed to parse AI analysis data:', e);
+      }
+    }
+
+    // ----------------------
+    // Step 7: Send Success Response
     // ----------------------
     // Return success message with post details to the frontend
-    res.status(200).json({
+    const responseData = {
       status: 'success',
       message: 'Post uploaded successfully!',
       post_id: postId,
       image_path: `/user_images/${newFileName}` // Path for displaying the image
-    });
+    };
+    
+    // Optionally include AI data in response for logging/debugging
+    if (aiAnalysisData) {
+      responseData.aiAnalysisData = aiAnalysisData;
+    }
+    
+    res.status(200).json(responseData);
 
   } catch (error) {
     // ----------------------
-    // Step 7: Error Handling
+    // Step 8: Error Handling
     // ----------------------
     // Log the error for debugging
     console.error('Error storing image:', error);
