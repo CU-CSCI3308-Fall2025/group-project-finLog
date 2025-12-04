@@ -323,6 +323,7 @@ app.get('/api/posts/:postId/comments', async (req, res) => {
       SELECT 
         c.comment_id,
         c.comment_text,
+        c.date_created,
         u.username,
         u.user_id
       FROM comments c
