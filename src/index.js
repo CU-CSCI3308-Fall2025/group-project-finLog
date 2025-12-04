@@ -721,7 +721,7 @@ app.get('/api/user/posts', async (req, res) => {
   }
 });
 
-// Get all posts for feed/finlog
+// Get all posts for feed/finlog (WITH LIKE AND COMMENT COUNTS)
 app.get('/api/posts', async (req, res) => {
   try {
     const query = `
@@ -733,10 +733,15 @@ app.get('/api/posts', async (req, res) => {
         p.fish_species,
         u.username,
         l.x_coord,
-        l.y_coord
+        l.y_coord,
+        COUNT(DISTINCT lk.user_id) as like_count,
+        COUNT(DISTINCT c.comment_id) as comment_count
       FROM posts p
       JOIN users u ON p.user_id = u.user_id
       LEFT JOIN location l ON p.post_id = l.post_id
+      LEFT JOIN likes lk ON p.post_id = lk.post_id
+      LEFT JOIN comments c ON p.post_id = c.post_id
+      GROUP BY p.post_id, u.username, l.x_coord, l.y_coord
       ORDER BY p.date_created DESC
       LIMIT 50;
     `;
@@ -758,7 +763,9 @@ app.get('/api/posts', async (req, res) => {
       
       return {
         ...post,
-        image_path: imagePath || `/user_images/${post.post_id}.jpg` // fallback
+        image_path: imagePath || `/user_images/${post.post_id}.jpg`, // fallback
+        like_count: parseInt(post.like_count) || 0,
+        comment_count: parseInt(post.comment_count) || 0
       };
     });
     
@@ -771,6 +778,98 @@ app.get('/api/posts', async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Failed to fetch posts'
+    });
+  }
+});
+
+// ==================== LIKES ENDPOINTS ====================
+
+// Like/Unlike a post
+app.post('/api/posts/:id/like', async (req, res) => {
+  try {
+    // Check if user is logged in
+    if (!req.session.user) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Must be logged in to like posts'
+      });
+    }
+
+    const postId = req.params.id;
+    const userId = req.session.user.user_id;
+
+    // Check if already liked
+    const existingLike = await db.oneOrNone(
+      'SELECT * FROM likes WHERE user_id = $1 AND post_id = $2',
+      [userId, postId]
+    );
+
+    if (existingLike) {
+      // Unlike: remove the like
+      await db.none(
+        'DELETE FROM likes WHERE user_id = $1 AND post_id = $2',
+        [userId, postId]
+      );
+      
+      return res.status(200).json({
+        status: 'success',
+        message: 'Post unliked',
+        liked: false
+      });
+    } else {
+      // Like: add the like
+      await db.none(
+        'INSERT INTO likes (user_id, post_id, liked) VALUES ($1, $2, TRUE)',
+        [userId, postId]
+      );
+      
+      return res.status(200).json({
+        status: 'success',
+        message: 'Post liked',
+        liked: true
+      });
+    }
+  } catch (error) {
+    console.error('Error toggling like:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to toggle like'
+    });
+  }
+});
+
+// Get like count for a post
+app.get('/api/posts/:id/likes', async (req, res) => {
+  try {
+    const postId = req.params.id;
+    
+    const result = await db.one(
+      'SELECT COUNT(*) as like_count FROM likes WHERE post_id = $1',
+      [postId]
+    );
+    
+    // Check if current user liked this post
+    let userLiked = false;
+    if (req.session.user) {
+      const userLike = await db.oneOrNone(
+        'SELECT * FROM likes WHERE user_id = $1 AND post_id = $2',
+        [req.session.user.user_id, postId]
+      );
+      userLiked = !!userLike;
+    }
+    
+    res.status(200).json({
+      status: 'success',
+      data: {
+        like_count: parseInt(result.like_count),
+        user_liked: userLiked
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching likes:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to fetch likes'
     });
   }
 });

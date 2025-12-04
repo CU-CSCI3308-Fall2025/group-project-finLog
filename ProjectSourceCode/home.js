@@ -30,9 +30,9 @@ function applyFilter(filterType) {
       break;
     
     case 'Trending':
-      // Sort by most recent (could add like/comment counts later)
+      // Sort by comment count (most comments first)
       filteredPosts.sort((a, b) => 
-        new Date(b.date_created) - new Date(a.date_created)
+        (b.comment_count || 0) - (a.comment_count || 0)
       );
       break;
     
@@ -120,6 +120,21 @@ function renderPosts(posts) {
             <p class="text-muted small mb-3">
               ${new Date(post.date_created).toLocaleDateString()}
             </p>
+
+            <!-- Like Button -->
+            <div class="d-flex align-items-center mb-3">
+              <button 
+                class="btn btn-sm btn-outline-danger like-btn" 
+                id="like-btn-${post.post_id}"
+                onclick="toggleLike(${post.post_id})"
+              >
+                <i class="bi bi-heart"></i>
+                <span id="like-count-${post.post_id}">${post.like_count || 0}</span>
+              </button>
+              <span class="ms-3 text-muted small">
+                <i class="bi bi-chat"></i> ${post.comment_count || 0} comments
+              </span>
+            </div>
 
             <hr class="my-2">
 
@@ -279,6 +294,48 @@ async function postComment(postId) {
   } catch (err) {
     console.error("Comment post error:", err);
     alert("Error posting comment. Please try again.");
+  }
+}
+
+// Toggle like on a post
+async function toggleLike(postId) {
+  try {
+    const response = await fetch(`/api/posts/${postId}/like`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const result = await response.json();
+
+    if (response.status === 401) {
+      alert('Please login to like posts!');
+      return;
+    }
+
+    if (result.status === 'success') {
+      // Update the button appearance
+      const likeBtn = document.getElementById(`like-btn-${postId}`);
+      const likeCountSpan = document.getElementById(`like-count-${postId}`);
+      const currentCount = parseInt(likeCountSpan.textContent);
+      
+      if (result.liked) {
+        // User just liked the post
+        likeBtn.classList.remove('btn-outline-danger');
+        likeBtn.classList.add('btn-danger');
+        likeBtn.innerHTML = `<i class="bi bi-heart-fill"></i> <span id="like-count-${postId}">${currentCount + 1}</span>`;
+      } else {
+        // User just unliked the post
+        likeBtn.classList.remove('btn-danger');
+        likeBtn.classList.add('btn-outline-danger');
+        likeBtn.innerHTML = `<i class="bi bi-heart"></i> <span id="like-count-${postId}">${currentCount - 1}</span>`;
+      }
+    }
+
+  } catch (err) {
+    console.error('Error toggling like:', err);
+    alert('Error liking post. Please try again.');
   }
 }
 
