@@ -282,5 +282,34 @@ async function postComment(postId) {
   }
 }
 
+// --- SEARCH BAR FUNCTIONALITY ---
+const searchInput = document.querySelector('.search-bar');
+
+// Allow pressing Enter to trigger search instead of submitting form
+searchInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault(); // stop page refresh
+    const query = searchInput.value.trim().toLowerCase();
+
+    if (!query) {
+      applyFilter(currentFilter);
+      return;
+    }
+
+    const filtered = allPosts.filter(post => {
+      return (
+        (post.username && post.username.toLowerCase().includes(query)) ||
+        (post.caption && post.caption.toLowerCase().includes(query)) ||
+        (post.fish_species && post.fish_species.toLowerCase().includes(query)) ||
+        (post.x_coord && `${post.x_coord}`.includes(query)) ||
+        (post.y_coord && `${post.y_coord}`.includes(query))
+      );
+    });
+
+    renderPosts(filtered);
+  }
+});
+
+
 // Load feed on startup
 window.addEventListener("DOMContentLoaded", loadFeed);
