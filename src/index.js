@@ -538,6 +538,67 @@ const requireAdmin = async (req, res, next) => {
 // <!-- Admin API Routes -->
 // *****************************************************
 
+// User deletes their own post
+app.delete('/api/user/posts/:id', async (req, res) => {
+  try {
+    // Must be logged in
+    if (!req.session.user) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Not authenticated'
+      });
+    }
+
+    const userId = req.session.user.user_id;
+    const postId = req.params.id;
+
+    // Step 1: Verify post belongs to this user
+    const post = await db.oneOrNone(
+      `SELECT post_id FROM posts WHERE post_id = $1 AND user_id = $2`,
+      [postId, userId]
+    );
+
+    if (!post) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'You do not have permission to delete this post'
+      });
+    }
+
+    // Step 2: Delete image file
+    const extensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+    for (const ext of extensions) {
+      const filePath = path.join(__dirname, '../user_images', `${postId}${ext}`);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        break;
+      }
+    }
+
+    // Step 3: Delete comments
+    await db.none(`DELETE FROM comments WHERE post_id = $1`, [postId]);
+
+    // Step 4: Delete location if exists
+    await db.none(`DELETE FROM location WHERE post_id = $1`, [postId]);
+
+    // Step 5: Delete the post record
+    await db.none(`DELETE FROM posts WHERE post_id = $1`, [postId]);
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Your post was deleted'
+    });
+
+  } catch (error) {
+    console.error('Error deleting user post:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to delete post'
+    });
+  }
+});
+
+
 // Get all posts for moderation (moderators + admins)
 app.get('/api/admin/posts', requireModerator, async (req, res) => {
   try {
